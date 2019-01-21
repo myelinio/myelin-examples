@@ -1,0 +1,10 @@
+numpy==1.16.0rc1
+h5py==2.8.0
+scipy>= 0.13.3
+scikit-learn>=0.18
+pandas>=0.22.0
+keras==1.2.2
+six>=1.11.0
+tensorflow==1.5.0
+Theano==1.0.4
+myelin==0.0.6
