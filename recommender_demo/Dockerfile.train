@@ -9,9 +9,9 @@ RUN pip install -r  requirements.txt
 
 WORKDIR /work
 
-RUN mkdir /work/myelin_recommender/
+RUN mkdir /work/recommender_demo/
 
-COPY myelin_model /work/myelin_recommender/myelin_model
-COPY train.py /work/myelin_recommender/train.py
+COPY myelin_model /work/recommender_demo/myelin_model
+COPY train.py /work/recommender_demo/train.py
 
-CMD python -m myelin_recommender.train
+CMD python -m recommender_demo.train
