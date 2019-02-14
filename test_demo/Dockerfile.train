@@ -7,4 +7,4 @@ WORKDIR /work
 
 COPY ./train.py /work/train.py
 
-CMD python preprocess.py
+CMD python train.py
