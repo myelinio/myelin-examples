@@ -1,11 +1,5 @@
 import json
-import os
-
-import numpy as np
 import requests
-
-data_path = os.environ.get('DATA_PATH') or '/tmp/data/'
-mnist_images = np.load(os.path.join(data_path, "train_data.npy"))
 
 address = "35.242.185.220:80"
 endpoint = "ml-recommender-all3-3795085459-2539877511"
