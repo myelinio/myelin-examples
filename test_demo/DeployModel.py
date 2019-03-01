@@ -16,7 +16,8 @@ class DeployModel(object):
 		return predictions
 
 	def send_feedback(self, features, feature_names, reward, truth):
-		self.c.post_update("deploy_accuracy", reward)
+		res = self.c.post_update("deploy_accuracy", reward)
+		print("Posted metric with status code: %s" % res.status_code)
 
 
 if __name__ == '__main__':

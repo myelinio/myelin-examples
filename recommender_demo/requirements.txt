@@ -7,4 +7,4 @@ keras==1.2.2
 six>=1.11.0
 tensorflow==1.5.0
 Theano==1.0.4
-myelin==0.0.6
+myelin==0.0.10
