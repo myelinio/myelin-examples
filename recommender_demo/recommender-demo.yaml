@@ -1,0 +1,96 @@
+apiVersion: myelinproj.io/v1alpha1
+kind: Axon
+metadata:
+  name: ml-recommender-all
+spec:
+
+  serviceAccountName: myelin-app-myelin
+
+  artifacts:
+    - name: rec-source
+      path: /src
+      git:
+        repo: git@github.com:myelinio/myelin-examples.git
+        revision: master
+        sshPrivateKeySecret:
+          name: github-creds
+          key: ssh-private-key
+
+  volume:
+    name: axon-store
+    flexVolume:
+      driver: ceph.rook.io/rook
+      fsType: ceph
+      options:
+        fsName: myfs # name of the filesystem specified in the filesystem CRD.
+        clusterNamespace: myelin # namespace where the Rook cluster is deployed
+
+  tasks:
+
+    - name: DataPrepMyelinRecommender
+      container:
+        imageBuild:
+          repositoryName: preprocess-myelin-recommender
+          artifact: rec-source
+          buildLocation: /src/recommender_demo
+          dockerfile:
+            path: Dockerfile.preprocess
+
+
+    - name: TrainMyelinRecommender
+      train:
+        imageBuild:
+          repositoryName: train-myelin-recommender
+          artifact: rec-source
+          buildLocation: /src/recommender_demo
+          dockerfile:
+            path: Dockerfile.train
+
+    - name: DeployMyelinRecommender
+      deploy:
+        deploymentType: "canary"
+        replicas: 2
+        endpointType: REST
+        imageBuild:
+          repositoryName: deploy-myelin-recommender
+          artifact: rec-source
+          buildLocation: /src/
+          s2i:
+            contextDir: recommender_demo
+            buiderImage: docker.io/myelinio/myelin-deployer-s2i-python:v0.1.1
+
+  sensors:
+
+    - name: TrainOnStart
+      tasks:
+        - resourceExecutor:
+            task: DataPrepMyelinRecommender
+        - trainer:
+            task: TrainMyelinRecommender
+
+
+    - name: DeploymentDecisionMaker
+      triggers:
+        - name: mnistTrainingComplete
+          type: Lifecycle
+          condition: Succeeded
+          task: TrainMyelinRecommender
+
+      tasks:
+        - deployer:
+            models:
+              - trainer: TrainMyelinRecommender
+                deployer: DeployMyelinRecommender
+                modelSelectionStrategy: best
+
+
+    - name: PostDeploymentDecisionMaker
+      triggers:
+        - name: RecommenderDeployAccuracy
+          type: Alert
+          condition: "{{recommender_deploy_accuracy}} < 0.90"
+      tasks:
+        - resourceExecutor:
+            task: DataPrepMyelinRecommender
+        - trainer:
+            task: TrainMyelinRecommender
