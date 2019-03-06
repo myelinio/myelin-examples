@@ -79,9 +79,19 @@ spec:
       tasks:
         - deployer:
             models:
-              - trainer: TrainMyelinRecommender
-                deployer: DeployMyelinRecommender
-                modelSelectionStrategy: best
+              - name: MyelinKerasRecommender
+                trainer: TrainMyelinTest
+                deployer: DeployMyelinTest
+                modelSelectionStrategy: "best"
+            routes:
+              - path: /predict
+                dag:
+                  - name: MyelinRecommenderPredict
+                    path: /predict
+              - path: /send-feedback
+                dag:
+                  - name: MyelinRecommenderFeedback
+                    path: /send-feedback
 
 
     - name: PostDeploymentDecisionMaker
