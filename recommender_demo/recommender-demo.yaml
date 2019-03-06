@@ -86,11 +86,11 @@ spec:
             routes:
               - path: /predict
                 dag:
-                  - name: MyelinRecommenderPredict
+                  - name: DeployMyelinRecommender
                     path: /predict
               - path: /send-feedback
                 dag:
-                  - name: MyelinRecommenderFeedback
+                  - name: DeployMyelinRecommender
                     path: /send-feedback
 
 
