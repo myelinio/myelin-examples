@@ -80,8 +80,8 @@ spec:
         - deployer:
             models:
               - name: MyelinKerasRecommender
-                trainer: TrainMyelinTest
-                deployer: DeployMyelinTest
+                trainer: TrainMyelinRecommender
+                deployer: DeployMyelinRecommender
                 modelSelectionStrategy: "best"
             routes:
               - path: /predict
