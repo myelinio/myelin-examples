@@ -51,6 +51,7 @@ spec:
         deploymentType: "canary"
         replicas: 2
         endpointType: REST
+        endpointRestType: Multipart
         imageBuild:
           repositoryName: deploy-myelin-recommender
           artifact: rec-source
