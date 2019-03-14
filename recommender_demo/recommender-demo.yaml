@@ -10,11 +10,8 @@ spec:
     - name: rec-source
       path: /src
       git:
-        repo: git@github.com:myelinio/myelin-examples.git
+        repo: https://github.com/myelinio/myelin-examples.git
         revision: master
-        sshPrivateKeySecret:
-          name: github-creds
-          key: ssh-private-key
 
   volume:
     name: axon-store
