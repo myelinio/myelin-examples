@@ -55,7 +55,7 @@ spec:
           buildLocation: /src/
           s2i:
             contextDir: recommender_demo
-            buiderImage: docker.io/myelinio/myelin-deployer-s2i-python:v0.1.1
+            buiderImage: docker.io/myelinio/myelin-deployer-s2i-python:v0.1.2
 
   sensors:
 
@@ -76,6 +76,8 @@ spec:
 
       tasks:
         - deployer:
+            deploymentType: "canary"
+            replicas: 2
             models:
               - name: MyelinKerasRecommender
                 trainer: TrainMyelinRecommender
