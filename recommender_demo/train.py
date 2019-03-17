@@ -64,7 +64,7 @@ model.compile(loss='mse', optimizer='adamax')
 callbacks = [EarlyStopping('val_loss', patience=2),
 			 ModelCheckpoint(os.path.join(model_path, 'weights.h5'), save_best_only=True)]
 
-history = model.fit([user_vector, movie_vector], rating_vector, nb_epoch=30, validation_split=.1, verbose=2,
+history = model.fit([user_vector, movie_vector], rating_vector, nb_epoch=1, validation_split=.1, verbose=2,
 					callbacks=callbacks)
 
 # Show the best validation RMSE
