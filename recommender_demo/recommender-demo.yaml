@@ -1,7 +1,7 @@
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
-  name: ml-recommender-all
+  name: ml-rec
 spec:
 
   serviceAccountName: myelin-app-myelin
@@ -10,11 +10,8 @@ spec:
     - name: rec-source
       path: /src
       git:
-        repo: git@github.com:myelinio/myelin-examples.git
+        repo: https://github.com/myelinio/myelin-examples.git
         revision: master
-        sshPrivateKeySecret:
-          name: github-creds
-          key: ssh-private-key
 
   volume:
     name: axon-store
@@ -58,7 +55,7 @@ spec:
           buildLocation: /src/
           s2i:
             contextDir: recommender_demo
-            buiderImage: docker.io/myelinio/myelin-deployer-s2i-python:v0.1.1
+            buiderImage: docker.io/myelinio/myelin-deployer-s2i-python:v0.1.2
 
   sensors:
 
@@ -79,6 +76,8 @@ spec:
 
       tasks:
         - deployer:
+            deploymentType: "canary"
+            replicas: 2
             models:
               - name: MyelinKerasRecommender
                 trainer: TrainMyelinRecommender
