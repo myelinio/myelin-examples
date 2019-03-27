@@ -7,4 +7,4 @@ WORKDIR /work
 
 COPY ./train.py /work/train.py
 
-CMD python train.py
+ENTRYPOINT ["python", "train.py"]
