@@ -1,0 +1,7 @@
+scipy
+numpy
+python-mnist
+tensorflow-gpu==1.13.1
+Pillow
+matplotlib
+myelin==0.0.11

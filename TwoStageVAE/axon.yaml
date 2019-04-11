@@ -1,0 +1,52 @@
+apiVersion: myelinproj.io/v1alpha1
+kind: Axon
+metadata:
+  name: two-stage-vae
+spec:
+
+  serviceAccountName: myelin-app-myelin
+
+  volume:
+    name: axon-store
+    flexVolume:
+      driver: ceph.rook.io/rook
+      fsType: ceph
+      options:
+        fsName: myfs # name of the filesystem specified in the filesystem CRD.
+        clusterNamespace: myelin-app # namespace where the Rook cluster is deployed
+
+  tasks:
+
+    - name: DataPrep
+      container:
+        image: myelinio/two-stage-vae-train-cpu:v0.1.0
+
+    - name: Train
+      train:
+        image: myelinio/two-stage-vae-train-cpu:v0.1.4
+        lossMetric: "fid_gen2"
+        lossMetricSelector: greater
+        hpTuning:
+          concurrency: 1
+          minBudget: 3
+          maxBudget: 10
+          numIteration: 1
+          optimiser: BOHB
+          params:
+            - type: UniformInteger
+              name: second-dim
+              numerical:
+                lower: "128"
+                upper: "2048"
+                default_value: "1024"
+                log: true
+
+  sensors:
+
+    - name: TrainOnStart
+      tasks:
+        - resourceExecutor:
+            task: DataPrep
+
+        - trainer:
+            task: Train
