@@ -1,0 +1,6 @@
+Shapely==1.5.13
+Flask==0.10.1
+scipy==0.19.0
+numpy==1.12.1
+Pillow==4.2.1
+opencv-python
