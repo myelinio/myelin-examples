@@ -665,9 +665,9 @@ def generator(input_size=512, batch_size=32,
                     resize_w = input_size
                     if im.size > 786432:
                         continue
-                    # print("before cv2.resize(im:%s, dsize=(%s, %s))" % (im.size, resize_w, resize_h))
+                    print("before cv2.resize(im:%s, dsize=(%s, %s))" % (im.size, resize_w, resize_h))
                     im = cv2.resize(im, dsize=(resize_w, resize_h))
-                    # print("after cv2.resize(im:%s, dsize=(%s, %s))" % (im.size, resize_w, resize_h))
+                    print("after cv2.resize(im:%s, dsize=(%s, %s))" % (im.size, resize_w, resize_h))
                     resize_ratio_3_x = resize_w/float(new_w)
                     resize_ratio_3_y = resize_h/float(new_h)
                     text_polys[:, :, 0] *= resize_ratio_3_x
