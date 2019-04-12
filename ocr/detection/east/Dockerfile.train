@@ -4,7 +4,7 @@ FROM akshayubhat/east:latest
 
 ADD text/ /root/EAST/text/
 
-VOLUME /model/EAST
+VOLUME /model/
 VOLUME /tmp/east_icdar2015_resnet_v1_50_rbox/
 VOLUME /data/EAST/train
 
