@@ -1,4 +1,5 @@
-# docker build -t myelinio/east:v0.1.0 -f Dockerfile.train .
+# docker build -t myelinio/east-train:v0.1.0 -f Dockerfile.train .
+# docker run -v /home/ryadh/Dev/workspaces/nn/text_localization/EAST/model/east_icdar2015_resnet_v1_50_rbox:/tmp/east_icdar2015_resnet_v1_50_rbox/ myelinio/east-train:v0.1.0 -f Dockerfile.train .
 FROM akshayubhat/east:latest
 
 ADD text/ /root/EAST/text/
@@ -13,4 +14,4 @@ ADD east/model.py /root/EAST/east
 
 ENV NUM_READERS 24
 
-CMD python multigpu_train.py --gpu_list=0 --input_size=512 --batch_size_per_gpu=14 --checkpoint_path=/root/EAST/model --text_scale=512 --training_data_path=/root/EAST/data/train --geometry=RBOX --learning_rate=0.0001 --num_readers=${NUM_READERS} --pretrained_model_path=/tmp/east_icdar2015_resnet_v1_50_rbox/model.ckpt-49491 --restore
+CMD python multigpu_train.py --gpu_list=0 --input_size=512 --batch_size_per_gpu=14 --checkpoint_path=/root/EAST/model --text_scale=512 --training_data_path=/root/EAST/data/train --geometry=RBOX --learning_rate=0.0001 --num_readers=${NUM_READERS} --pretrained_model_path=/tmp/east_icdar2015_resnet_v1_50_rbox/model.ckpt-49491
