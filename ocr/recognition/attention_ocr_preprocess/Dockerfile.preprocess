@@ -1,0 +1,21 @@
+FROM tensorflow/tensorflow:1.11.0-devel-gpu-py3
+
+
+
+WORKDIR /app/aocr/
+
+ADD ./requirements.txt /app/aocr/requirements.txt
+RUN pip install -r requirements.txt
+RUN apt update && apt install -y libsm6 libxext6 libxrender-dev
+
+ADD . /app/aocr/
+RUN chmod +x run.sh
+
+
+VOLUME /data/aocr/tfrecords
+VOLUME /data/crops
+ENV SIZE 100
+ENV PHASE train
+ENV STOP_WORD_PER 0.10
+
+CMD ./run.sh $SIZE $PHASE $STOP_WORD_PER

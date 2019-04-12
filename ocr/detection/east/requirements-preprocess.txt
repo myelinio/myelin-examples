@@ -1,0 +1,5 @@
+shapely
+Pillow
+numpy
+h5py
+opencv-python

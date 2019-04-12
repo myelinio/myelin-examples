@@ -1,0 +1,9 @@
+FROM akshayubhat/east:latest
+
+ADD templates/ /root/EAST/templates/
+ADD text/ /root/EAST/text/
+
+VOLUME ["/root/EAST/static/results"]
+
+ADD predict.py /root/EAST
+CMD ["python", "predict.py"]

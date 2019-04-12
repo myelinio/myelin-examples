@@ -1,0 +1,16 @@
+# docker build -t myelinio/east-preprocess:v0.1.0 -f Dockerfile.preprocess .
+FROM python:3.6
+
+
+WORKDIR /app/east/
+
+ADD ./requirements-preprocess.txt /app/aocr/requirements.txt
+RUN pip install -r requirements.txt
+
+ADD preprocess.py /app/east/
+
+
+VOLUME /data/input
+VOLUME /data/output
+
+CMD python preprocess.py --input-dir=/data/input  --output-dir=/data/output

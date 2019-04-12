@@ -1,9 +1,10 @@
-import numpy as np 
+import numpy as np
 import pickle
 from mnist import MNIST
 import os
 from scipy.misc import imread, imresize, imsave
 import pickle
+
 ROOT_FOLDER = './data'
 
 
@@ -43,7 +44,9 @@ def load_fashion_data(flag='training'):
 
 def load_cifar10_data(flag='training'):
     if flag == 'training':
-        data_files = ['data/cifar10/cifar-10-batches-py/data_batch_1', 'data/cifar10/cifar-10-batches-py/data_batch_2', 'data/cifar10/cifar-10-batches-py/data_batch_3', 'data/cifar10/cifar-10-batches-py/data_batch_4', 'data/cifar10/cifar-10-batches-py/data_batch_5']
+        data_files = ['data/cifar10/cifar-10-batches-py/data_batch_1', 'data/cifar10/cifar-10-batches-py/data_batch_2',
+                      'data/cifar10/cifar-10-batches-py/data_batch_3', 'data/cifar10/cifar-10-batches-py/data_batch_4',
+                      'data/cifar10/cifar-10-batches-py/data_batch_5']
     else:
         data_files = ['data/cifar10/cifar-10-batches-py/test_batch']
     x = []
@@ -70,7 +73,7 @@ def load_celeba_data(flag='training', side_length=None, num=None):
     imgs = []
     for i in range(start_idx, end_idx):
         img = np.array(imread(dir_path + os.sep + filelist[i]))
-        img = img[45:173,25:153]
+        img = img[45:173, 25:153]
         if side_length is not None:
             img = imresize(img, [side_length, side_length])
         new_side_length = np.shape(img)[1]
@@ -99,7 +102,7 @@ def load_celeba140_data(flag='training', side_length=None, num=None):
     imgs = []
     for i in range(start_idx, end_idx):
         img = np.array(imread(dir_path + os.sep + filelist[i]))
-        img = img[39:179,19:159]
+        img = img[39:179, 19:159]
         if side_length is not None:
             img = imresize(img, [side_length, side_length])
         new_side_length = np.shape(img)[1]
@@ -127,6 +130,7 @@ def preprocess_celeba140():
     x_train = load_celeba140_data('training', 64)
     np.save(os.path.join('data', 'celeba140', 'train.npy'), x_train)
 
+
 # Center crop 128x128 and resize to 64x64
 def preprocess_celeba():
     x_val = load_celeba_data('val', 64)
@@ -136,18 +140,18 @@ def preprocess_celeba():
     x_train = load_celeba_data('training', 64)
     np.save(os.path.join('data', 'celeba', 'train.npy'), x_train)
 
+
 def preprocess_mnist(root_folder):
     x_train = load_mnist_data('training')
     x_train = np.reshape(x_train, [60000, 28, 28, 1])
-    data_path = os.path.join('data', 'mnist')
+    data_path = os.path.join(root_folder, 'data', 'mnist')
     if not os.path.exists(data_path):
         os.makedirs(data_path)
 
-    train_path = os.path.join('data', 'mnist', 'train.npy')
-    np.save(train_path, x_train)
+    np.save(os.path.join(data_path, 'train.npy'), x_train)
     x_test = load_mnist_data('testing')
     x_test = np.reshape(x_test, [10000, 28, 28, 1])
-    np.save(os.path.join(root_folder, 'data', 'mnist', 'test.npy'), x_test)
+    np.save(os.path.join(data_path, 'test.npy'), x_test)
 
 
 def preporcess_cifar10():
@@ -175,7 +179,7 @@ def preprocess_imagenet():
         x_batch = x_batch['data']
         x_batch = np.reshape(x_batch, [np.shape(x_batch)[0], 3, 64, 64])
         x_batch = np.transpose(x_batch, [0, 2, 3, 1])
-        np.save(os.path.join('data', 'imagenet', 'train' + str(i-1) + '.npy'), x_batch)
+        np.save(os.path.join('data', 'imagenet', 'train' + str(i - 1) + '.npy'), x_batch)
     fid = open(os.path.join('data', 'imagenet', 'val_data'), 'rb')
     x_batch = pickle.load(fid)
     fid.close()
@@ -183,13 +187,12 @@ def preprocess_imagenet():
     x_batch = np.reshape(x_batch, [np.shape(x_batch)[0], 3, 64, 64])
     x_batch = np.transpose(x_batch, [0, 2, 3, 1])
     np.save(os.path.join('data', 'imagenet', 'test.npy'), x_batch)
-    
 
 
 if __name__ == '__main__':
     # preprocess_celeba()
     # preprocess_celeba140()
-#    preprocess_imagenet()
+    #    preprocess_imagenet()
     root_folder = os.environ.get('DATA_PATH') or '/tmp/twostagevae/'
 
     if not os.path.exists(root_folder):

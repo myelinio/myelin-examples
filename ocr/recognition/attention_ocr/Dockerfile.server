@@ -1,0 +1,19 @@
+FROM tensorflow/tensorflow:1.11.0-devel-gpu
+
+
+WORKDIR /app/aocr/
+
+ADD ./requirements.txt /app/aocr/requirements.txt
+RUN pip install -r requirements.txt
+RUN wget http://download.tensorflow.org/models/inception_v3_2016_08_28.tar.gz
+RUN tar xf inception_v3_2016_08_28.tar.gz
+
+RUN apt update && apt install -y libsm6 libxext6 libxrender-dev
+
+ADD . /app/aocr/
+
+
+VOLUME /data/aocr/model
+EXPOSE 8770
+
+CMD python demo_inference_server.py --port 8770 --checkpoint_path=/data/aocr/model --dataset_name=floorplan

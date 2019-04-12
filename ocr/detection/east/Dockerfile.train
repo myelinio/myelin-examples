@@ -1,0 +1,16 @@
+# docker build -t myelinio/east:v0.1.0 -f Dockerfile.train .
+FROM akshayubhat/east:latest
+
+ADD text/ /root/EAST/text/
+
+VOLUME /root/EAST/model
+VOLUME /tmp/east_icdar2015_resnet_v1_50_rbox/
+VOLUME /root/EAST/data/train
+
+ADD multigpu_train.py /root/EAST
+ADD east/icdar.py /root/EAST/east
+ADD east/model.py /root/EAST/east
+
+ENV NUM_READERS 24
+
+CMD python multigpu_train.py --gpu_list=0 --input_size=512 --batch_size_per_gpu=14 --checkpoint_path=/root/EAST/model --text_scale=512 --training_data_path=/root/EAST/data/train --geometry=RBOX --learning_rate=0.0001 --num_readers=${NUM_READERS} --pretrained_model_path=/tmp/east_icdar2015_resnet_v1_50_rbox/model.ckpt-49491 --restore
