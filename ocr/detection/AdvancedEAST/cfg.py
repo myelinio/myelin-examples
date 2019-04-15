@@ -1,5 +1,6 @@
 import os
 
+model_path = './'
 train_task_id = '3T736'
 initial_epoch = 0
 epoch_num = 24
@@ -55,15 +56,15 @@ feature_layers_num = len(feature_layers_range)
 pixel_size = 2 ** feature_layers_range[-1]
 locked_layers = False
 
-if not os.path.exists('/models/model'):
-    os.mkdir('/models/model')
-if not os.path.exists('/models/saved_model'):
-    os.mkdir('/models/saved_model')
+if not os.path.exists(model_path + 'model'):
+    os.mkdir(model_path + 'model')
+if not os.path.exists(model_path + 'saved_model'):
+    os.mkdir(model_path + 'saved_model')
 
-model_weights_path = '/models/model/weights_%s.{epoch:03d}-{val_loss:.3f}.h5' \
+model_weights_path = model_path + 'model/weights_%s.{epoch:03d}-{val_loss:.3f}.h5' \
                      % train_task_id
-saved_model_file_path = '/models/saved_model/east_model_%s.h5' % train_task_id
-saved_model_weights_file_path = '/models/saved_model/east_model_weights_%s.h5'\
+saved_model_file_path = model_path + 'saved_model/east_model_%s.h5' % train_task_id
+saved_model_weights_file_path = model_path + 'saved_model/east_model_weights_%s.h5'\
                                 % train_task_id
 
 pixel_threshold = 0.9

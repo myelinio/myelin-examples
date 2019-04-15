@@ -34,6 +34,10 @@ def cut_text_line(geo, scale_ratio_w, scale_ratio_h, im_array, img_path, s):
 
 def predict(east_detect, img_path, pixel_threshold, quiet=False):
     img = image.load_img(img_path)
+    predict_img(east_detect, img, pixel_threshold, quiet=False)
+
+
+def predict_img(east_detect, img, pixel_threshold, quiet=False):
     d_wight, d_height = resize_image(img, cfg.max_predict_img_size)
     img = img.resize((d_wight, d_height), Image.NEAREST).convert('RGB')
     img = image.img_to_array(img)
@@ -129,7 +133,7 @@ def predict_txt(east_detect, img_path, txt_path, pixel_threshold, quiet=False):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', '-p',
-                        default='demo/f1.jpg',
+                        default='demo/001.png',
                         help='image path')
     parser.add_argument('--threshold', '-t',
                         default=cfg.pixel_threshold,
