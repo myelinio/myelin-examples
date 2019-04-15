@@ -29,7 +29,7 @@ else:
 steps_per_epoch = total_img * (1 - validation_split_ratio) // batch_size
 validation_steps = total_img * validation_split_ratio // batch_size
 
-data_dir = 'icpr/'
+data_dir = '/data/icpr/'
 origin_image_dir_name = 'image_10000/'
 origin_txt_dir_name = 'txt_10000/'
 train_image_dir_name = 'images_%s/' % train_task_id
