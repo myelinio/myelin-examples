@@ -39,7 +39,7 @@ def createDataset(outputPath, imagePathList, labelList, stop_words_per):
             # if not os.path.exists(processed_base_path):
             #     os.makedirs(processed_base_path)
             # processed_path = os.path.join(processed_base_path, "%s.png" % filename)
-            # subprocess.call(["/home/ryadh/Dev/tools/image_proc/imagemagick/textcleaner", "-g",  "-e","normalize", "-f"  ,"30" ,"-o", "12", "-s", "2",
+            # subprocess.call(["imagemagick/textcleaner", "-g",  "-e","normalize", "-f"  ,"30" ,"-o", "12", "-s", "2",
             #                  "-a",
             #                  "10",
             #                  "-g",
@@ -78,8 +78,8 @@ def tf_crnn_label(label):
 
 def digits(strg):
     return ''.join(ch for ch in strg if ch.isdigit())
-# od -cvAnone -w1 /media/ryadh/DATA1/Riadh_Data/data/floorplan/crops4/labels_fixed.txt| sort -b | uniq -c | sort -rn
-# sed '65930,65940 !d' /media/ryadh/DATA1/Riadh_Data/data/floorplan/crops_white_rm_floorplan/labels_fixed.txt
+# od -cvAnone -w1 data/floorplan/crops4/labels_fixed.txt| sort -b | uniq -c | sort -rn
+# sed '65930,65940 !d' data/floorplan/crops_white_rm_floorplan/labels_fixed.txt
 #
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process some integers.')

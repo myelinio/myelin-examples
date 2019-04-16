@@ -41,7 +41,7 @@ DEFAULT_CONFIG = {
             'pattern': 'validation/validation*'
         }
     },
-    'charset_filename': '/home/ryadh/Dev/workspaces/nn/text_detection/text_detection/tf/attention_ocr/python/datasets/testdata/fsns/charset_size=134.txt',
+    'charset_filename': 'datasets/testdata/fsns/charset_size=134.txt',
     'image_shape': (150, 600, 3),
     'num_of_views': 4,
     'max_sequence_length': 37,

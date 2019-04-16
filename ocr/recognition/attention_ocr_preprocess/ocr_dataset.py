@@ -93,7 +93,7 @@ def generate(annotations_path, output_path, log_step=5000,
                     im = im.convert('RGB')
                     im.save(img_io, format="png")
 
-                    # im.save('/home/ryadh/Dev/workspaces/nn/text_detection/text_detection/tf/attention_ocr/python/testdata/floorplan/validation_%d.png' % im_cnt, format="png")
+                    # im.save('text_detection/tf/attention_ocr/python/testdata/floorplan/validation_%d.png' % im_cnt, format="png")
                     # if im_cnt > 100:
                     #     break
 
