@@ -45,11 +45,9 @@ if __name__ == '__main__':
 
     logger.info("Config: %s" % args)
 
-    model_weights_path = args.model_path + 'model/weights_%s.{epoch:03d}-{val_loss:.3f}.h5' \
-                         % args.model_path
+    model_weights_path = args.model_path + 'model/weights_%s.{epoch:03d}-{val_loss:.3f}.h5' % cfg.train_task_id
     saved_model_file_path = args.model_path + 'saved_model/east_model_%s.h5' % args.train_task_id
-    saved_model_weights_file_path = args.model_path + 'saved_model/east_model_weights_%s.h5' \
-                                    % args.train_task_id
+    saved_model_weights_file_path = args.model_path + 'saved_model/east_model_weights_%s.h5' % cfg.train_task_id
 
     logger.info("model_weights_path: %s" % model_weights_path)
     logger.info("saved_model_file_path: %s" % saved_model_file_path)

@@ -112,9 +112,23 @@ def transform(img):
             change_contrast(img, random.randint(50, 100)),
             change_brightness(img, random.uniform(0.5, 1.9)),
             crop(img,
-                 [tint_image_p(random.choice(colors)) for _ in range(ratio**2)],
-                 ratio)
+                 [tint_image_p(random.choice(colors)) for _ in range(ratio ** 2)],
+                 ratio),
+            draw_rectangle(img, num_triangles=random.randint(1, 5)),
+            draw_rectangle(img, num_triangles=random.randint(1, 5))
             ]
+
+
+def draw_rectangle(im, num_triangles):
+    im = im.copy()
+    imgwidth, imgheight = im.size
+
+    draw = ImageDraw.Draw(im)
+    for _ in range(num_triangles):
+        draw.rectangle(((random.randint(1, imgwidth - 1), random.randint(1, imgwidth - 1)),
+                        (random.randint(1, imgheight - 1), random.randint(1, imgheight - 1))), outline="#000000",
+                       width=random.randint(5, 10))
+    return im
 
 
 def crop(im, list_trans, ratio):
