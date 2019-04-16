@@ -133,11 +133,14 @@ def predict_txt(east_detect, img_path, txt_path, pixel_threshold, quiet=False):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', '-p',
-                        default='demo/001.png',
+                        default='demo/f5.jpg',
                         help='image path')
     parser.add_argument('--threshold', '-t',
                         default=cfg.pixel_threshold,
                         help='pixel activation threshold')
+    parser.add_argument('--model_path', default=cfg.model_path, type=str)
+    parser.add_argument('--data_dir', default=cfg.data_dir, type=str)
+    parser.add_argument('--train_task_id', default=cfg.train_task_id, type=str)
     return parser.parse_args()
 
 
@@ -147,7 +150,13 @@ if __name__ == '__main__':
     threshold = float(args.threshold)
     print(img_path, threshold)
 
+    model_weights_path = args.model_path + 'model/weights_%s.{epoch:03d}-{val_loss:.3f}.h5' \
+                         % args.model_path
+    saved_model_file_path = args.model_path + 'saved_model/east_model_%s.h5' % args.train_task_id
+    saved_model_weights_file_path = args.model_path + 'saved_model/east_model_weights_%s.h5' \
+                                    % args.train_task_id
+
     east = East()
     east_detect = east.east_network()
-    east_detect.load_weights(cfg.saved_model_weights_file_path)
+    east_detect.load_weights(saved_model_weights_file_path)
     predict(east_detect, img_path, threshold)

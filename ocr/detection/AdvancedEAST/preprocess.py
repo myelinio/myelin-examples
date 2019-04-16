@@ -1,3 +1,5 @@
+import argparse
+
 import numpy as np
 from PIL import Image, ImageDraw
 import os
@@ -84,8 +86,130 @@ def resize_image(im, max_img_size=cfg.max_train_img_size):
     return d_wight, d_height
 
 
-def preprocess():
-    data_dir = cfg.data_dir
+def transform(img):
+    width_r, height_r = img.size
+    quad_shift = height_r // 50
+    return [img,
+            # rotate(img, random.randint(1, 4)),
+            # rotate(img, random.randint(-4, -1)),
+            noisy(img, 'gauss'),
+            noisy(img, 'poisson'),
+            noisy(img, 's&p'),
+            # noisy(img, 'speckle'),
+            quad_transform(img, quad_shift, -quad_shift),
+            quad_transform(img, -quad_shift, quad_shift),
+            change_contrast(img, random.randint(50, 100)),
+            change_brightness(img, random.uniform(0.5, 1.9))
+            ]
+
+from PIL import Image, ImageEnhance
+
+
+def change_brightness(img, level):
+    contrast = ImageEnhance.Contrast(img)
+    return contrast.enhance(level)
+
+
+def change_contrast(img, level):
+    factor = (259 * (level + 255)) / (255 * (259 - level))
+
+    def contrast(c):
+        return 128 + factor * (c - 128)
+
+    return img.point(contrast)
+
+
+def rotate(img, angle):
+    # original image
+    # converted to have an alpha layer
+    im2 = img.convert('RGBA')
+    # rotated image
+    rot = im2.rotate(angle, expand=1)
+    # a white image same size as rotated image
+    fff = Image.new('RGBA', rot.size, (255,) * 4)
+    # create a composite image using the alpha layer of rot as a mask
+    out = Image.composite(rot, fff, rot)
+    # save your work (converting back to mode='1' or whatever..)
+    return out.convert(img.mode)
+
+
+def quad_transform(im, shift_left, shift_right):
+    width, height = im.size
+
+    im2 = im.convert('RGBA')
+    im2 = im2.transform((im.size), Image.QUAD, (
+        0, 0, 0, height + shift_left, width + shift_left, height + shift_right, width + shift_right, 0))
+    return fill_white(im, im2)
+
+
+def mesh_transform(im, shift_left, shift_right):
+    im2 = im.convert('RGBA')
+    (w, h) = im.size
+    im2 = im2.transform((im.size), Image.MESH,
+                        [(
+                            (0, 0, w, h),  # box
+                            (0, 0, 0, h + shift_right, w + shift_right, h + shift_right, w + shift_right, 0))
+                        ],  # ul -> ccw around quad
+                        Image.BILINEAR)
+
+    return fill_white(im, im2)
+
+
+def fill_white(im, im2):
+    # a white image same size as rotated image
+    fff = Image.new('RGBA', im2.size, (255,) * 4)
+    # create a composite image using the alpha layer of rot as a mask
+    out = Image.composite(im2, fff, im2)
+    # save your work (converting back to mode='1' or whatever..)
+    return out.convert(im.mode)
+
+
+def noisy(pil_image, noise_typ):
+    image = np.array(pil_image)
+    if noise_typ == "gauss":
+        row, col, ch = image.shape
+        mean = 0
+        var = 0.1
+        sigma = var ** 0.5
+        gauss = np.random.normal(mean, sigma, (row, col, ch))
+        gauss = gauss.reshape(row, col, ch)
+        noisy = image + gauss
+        return pil_from_np(noisy)
+    elif noise_typ == "s&p":
+        row, col, ch = image.shape
+        s_vs_p = 0.5
+        amount = 0.004
+        out = np.copy(image)
+        # Salt mode
+        num_salt = np.ceil(amount * image.size * s_vs_p)
+        coords = [np.random.randint(0, i - 1, int(num_salt))
+                  for i in image.shape]
+        out[coords] = 1
+
+        # Pepper mode
+        num_pepper = np.ceil(amount * image.size * (1. - s_vs_p))
+        coords = [np.random.randint(0, i - 1, int(num_pepper))
+                  for i in image.shape]
+        out[coords] = 0
+        return pil_from_np(out)
+    elif noise_typ == "poisson":
+        vals = len(np.unique(image))
+        vals = 2 ** np.ceil(np.log2(vals))
+        noisy = np.random.poisson(image * vals) / float(vals)
+        return pil_from_np(noisy)
+    elif noise_typ == "speckle":
+        row, col, ch = image.shape
+        gauss = np.random.randn(row, col, ch)
+        gauss = gauss.reshape(row, col, ch)
+        noisy = image + image * gauss
+        return pil_from_np(noisy)
+
+
+def pil_from_np(np_array):
+    return Image.fromarray(np_array.astype('uint8'), 'RGB')
+
+
+def preprocess(data_dir):
     origin_image_dir = os.path.join(data_dir, cfg.origin_image_dir_name)
     origin_txt_dir = os.path.join(data_dir, cfg.origin_txt_dir_name)
     train_image_dir = os.path.join(data_dir, cfg.train_image_dir_name)
@@ -98,7 +222,7 @@ def preprocess():
     show_gt_image_dir = os.path.join(data_dir, cfg.show_gt_image_dir_name)
     if not os.path.exists(show_gt_image_dir):
         os.mkdir(show_gt_image_dir)
-    show_act_image_dir = os.path.join(cfg.data_dir, cfg.show_act_image_dir_name)
+    show_act_image_dir = os.path.join(data_dir, cfg.show_act_image_dir_name)
     if not os.path.exists(show_act_image_dir):
         os.mkdir(show_act_image_dir)
 
@@ -106,62 +230,69 @@ def preprocess():
     print('found %d origin images.' % len(o_img_list))
     train_val_set = []
     for o_img_fname, _ in zip(o_img_list, tqdm(range(len(o_img_list)))):
+
         with Image.open(os.path.join(origin_image_dir, o_img_fname)) as im:
             # d_wight, d_height = resize_image(im)
             d_wight, d_height = cfg.max_train_img_size, cfg.max_train_img_size
             scale_ratio_w = d_wight / im.width
             scale_ratio_h = d_height / im.height
             im = im.resize((d_wight, d_height), Image.NEAREST).convert('RGB')
-            show_gt_im = im.copy()
-            # draw on the img
-            draw = ImageDraw.Draw(show_gt_im)
-            with open(os.path.join(origin_txt_dir,
-                                   o_img_fname[:-4] + '.txt'), 'r') as f:
-                anno_list = f.readlines()
-            xy_list_array = np.zeros((len(anno_list), 4, 2))
-            for anno, i in zip(anno_list, range(len(anno_list))):
-                anno_colums = anno.strip().split(',')
-                anno_array = np.array(anno_colums)
-                xy_list = np.reshape(anno_array[:8].astype(float), (4, 2))
-                xy_list[:, 0] = xy_list[:, 0] * scale_ratio_w
-                xy_list[:, 1] = xy_list[:, 1] * scale_ratio_h
-                xy_list = reorder_vertexes(xy_list)
-                xy_list_array[i] = xy_list
-                _, shrink_xy_list, _ = shrink(xy_list, cfg.shrink_ratio)
-                shrink_1, _, long_edge = shrink(xy_list, cfg.shrink_side_ratio)
+
+            imgs_trans = transform(im)
+            txt_fname = o_img_fname[:-4] + '.txt'
+            init_o_img_fname = o_img_fname
+            for im_idx, im in enumerate(imgs_trans):
+                show_gt_im = im.copy()
+                # draw on the img
+                draw = ImageDraw.Draw(show_gt_im)
+                o_img_fname = "%s_%s.%s" % (init_o_img_fname[:-4], str(im_idx), o_img_fname[-3:])
+                with open(os.path.join(origin_txt_dir,
+                                       txt_fname), 'r') as f:
+                    anno_list = f.readlines()
+                xy_list_array = np.zeros((len(anno_list), 4, 2))
+                for anno, i in zip(anno_list, range(len(anno_list))):
+                    anno_colums = anno.strip().split(',')
+                    anno_array = np.array(anno_colums)
+                    xy_list = np.reshape(anno_array[:8].astype(float), (4, 2))
+                    xy_list[:, 0] = xy_list[:, 0] * scale_ratio_w
+                    xy_list[:, 1] = xy_list[:, 1] * scale_ratio_h
+                    xy_list = reorder_vertexes(xy_list)
+                    xy_list_array[i] = xy_list
+                    _, shrink_xy_list, _ = shrink(xy_list, cfg.shrink_ratio)
+                    shrink_1, _, long_edge = shrink(xy_list, cfg.shrink_side_ratio)
+                    if draw_gt_quad:
+                        draw.line([tuple(xy_list[0]), tuple(xy_list[1]),
+                                   tuple(xy_list[2]), tuple(xy_list[3]),
+                                   tuple(xy_list[0])
+                                   ],
+                                  width=2, fill='green')
+                        draw.line([tuple(shrink_xy_list[0]),
+                                   tuple(shrink_xy_list[1]),
+                                   tuple(shrink_xy_list[2]),
+                                   tuple(shrink_xy_list[3]),
+                                   tuple(shrink_xy_list[0])
+                                   ],
+                                  width=2, fill='blue')
+                        vs = [[[0, 0, 3, 3, 0], [1, 1, 2, 2, 1]],
+                              [[0, 0, 1, 1, 0], [2, 2, 3, 3, 2]]]
+                        for q_th in range(2):
+                            draw.line([tuple(xy_list[vs[long_edge][q_th][0]]),
+                                       tuple(shrink_1[vs[long_edge][q_th][1]]),
+                                       tuple(shrink_1[vs[long_edge][q_th][2]]),
+                                       tuple(xy_list[vs[long_edge][q_th][3]]),
+                                       tuple(xy_list[vs[long_edge][q_th][4]])],
+                                      width=3, fill='yellow')
+                if cfg.gen_origin_img:
+                    im.save(os.path.join(train_image_dir, o_img_fname))
+                np.save(os.path.join(
+                    train_label_dir,
+                    o_img_fname[:-4] + '.npy'),
+                    xy_list_array)
                 if draw_gt_quad:
-                    draw.line([tuple(xy_list[0]), tuple(xy_list[1]),
-                               tuple(xy_list[2]), tuple(xy_list[3]),
-                               tuple(xy_list[0])
-                               ],
-                              width=2, fill='green')
-                    draw.line([tuple(shrink_xy_list[0]),
-                               tuple(shrink_xy_list[1]),
-                               tuple(shrink_xy_list[2]),
-                               tuple(shrink_xy_list[3]),
-                               tuple(shrink_xy_list[0])
-                               ],
-                              width=2, fill='blue')
-                    vs = [[[0, 0, 3, 3, 0], [1, 1, 2, 2, 1]],
-                          [[0, 0, 1, 1, 0], [2, 2, 3, 3, 2]]]
-                    for q_th in range(2):
-                        draw.line([tuple(xy_list[vs[long_edge][q_th][0]]),
-                                   tuple(shrink_1[vs[long_edge][q_th][1]]),
-                                   tuple(shrink_1[vs[long_edge][q_th][2]]),
-                                   tuple(xy_list[vs[long_edge][q_th][3]]),
-                                   tuple(xy_list[vs[long_edge][q_th][4]])],
-                                  width=3, fill='yellow')
-            if cfg.gen_origin_img:
-                im.save(os.path.join(train_image_dir, o_img_fname))
-            np.save(os.path.join(
-                train_label_dir,
-                o_img_fname[:-4] + '.npy'),
-                xy_list_array)
-            if draw_gt_quad:
-                show_gt_im.save(os.path.join(show_gt_image_dir, o_img_fname))
-            train_val_set.append('{},{},{}\n'.format(o_img_fname,
-                                                     d_wight,
-                                                     d_height))
+                    show_gt_im.save(os.path.join(show_gt_image_dir, o_img_fname))
+                train_val_set.append('{},{},{}\n'.format(o_img_fname,
+                                                         d_wight,
+                                                         d_height))
 
     train_img_list = os.listdir(train_image_dir)
     print('found %d train images.' % len(train_img_list))
@@ -177,4 +308,7 @@ def preprocess():
 
 
 if __name__ == '__main__':
-    preprocess()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data_dir', default=cfg.data_dir, type=str)
+    args = parser.parse_args()
+    preprocess(args.data_dir)
