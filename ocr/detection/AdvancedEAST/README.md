@@ -1,12 +1,14 @@
 ```bash
 
-docker build -t myelinio/advanced-east-preprocess:v0.1.0 -f Dockerfile.preprocess .
 
 docker run \
 -v /Users/ryadhkhsib/Dev/workspaces/nn/myelin-examples/ocr/detection/AdvancedEAST/icpr:/data/icpr \
 myelinio/advanced-east-preprocess:v0.1.0
 
 # Preprocess
+
+docker build -t myelinio/advanced-east-preprocess:v0.1.0 -f Dockerfile.preprocess .
+
 find ../../floorplan/floorplan_2_east/ -type f -name "11*.jpg" -exec cp {} icpr/image_10000/ \; -print
 find ../../floorplan/floorplan_2_east/ -type f -name "11*.txt" -exec cp {} icpr/txt_10000/ \; -print
 

@@ -13,7 +13,6 @@ lambda_inside_score_loss = 4.0
 lambda_side_vertex_code_loss = 1.0
 lambda_side_vertex_coord_loss = 1.0
 
-total_img = 10000
 validation_split_ratio = 0.1
 max_train_img_size = int(train_task_id[-3:])
 max_predict_img_size = int(train_task_id[-3:])  # 2400
@@ -27,8 +26,15 @@ elif max_train_img_size == 512:
     batch_size = 2
 else:
     batch_size = 1
-steps_per_epoch = total_img * (1 - validation_split_ratio) // batch_size
-validation_steps = total_img * validation_split_ratio // batch_size
+
+
+def steps_per_epoch(validation_split_ratio, batch_size, total_img):
+    return total_img * (1 - validation_split_ratio) // batch_size
+
+
+def validation_steps(validation_split_ratio, batch_size, total_img):
+    return total_img * validation_split_ratio // batch_size
+
 
 data_dir = '/data/icpr/'
 origin_image_dir_name = 'image_10000/'
@@ -61,3 +67,8 @@ side_vertex_pixel_threshold = 0.9
 trunc_threshold = 0.1
 predict_cut_text_line = False
 predict_write2txt = True
+
+
+def total_img(data_dir):
+    with open(os.path.join(data_dir, train_fname), 'r') as f_train:
+        return len(f_train.readlines())
