@@ -1,4 +1,6 @@
 import argparse
+import functools
+import math
 
 import numpy as np
 from PIL import Image, ImageDraw
@@ -8,6 +10,9 @@ from tqdm import tqdm
 
 import cfg
 from label import shrink
+from PIL import Image, ImageEnhance, ImageOps
+from functools import partial
+import random
 
 
 def batch_reorder_vertexes(xy_list_array):
@@ -41,7 +46,7 @@ def reorder_vertexes(xy_list):
     k = np.zeros((len(others),))
     for index, i in zip(others, range(len(others))):
         k[i] = (xy_list[index, 1] - xy_list[first_v, 1]) \
-                    / (xy_list[index, 0] - xy_list[first_v, 0] + cfg.epsilon)
+               / (xy_list[index, 0] - xy_list[first_v, 0] + cfg.epsilon)
     k_mid = np.argsort(k)[1]
     third_v = others[k_mid]
     reorder_xy_list[2] = xy_list[third_v]
@@ -61,7 +66,7 @@ def reorder_vertexes(xy_list):
     # compare slope of 13 and 24, determine the final order
     k13 = k[k_mid]
     k24 = (xy_list[second_v, 1] - xy_list[fourth_v, 1]) / (
-                xy_list[second_v, 0] - xy_list[fourth_v, 0] + cfg.epsilon)
+            xy_list[second_v, 0] - xy_list[fourth_v, 0] + cfg.epsilon)
     if k13 < k24:
         tmp_x, tmp_y = reorder_xy_list[3, 0], reorder_xy_list[3, 1]
         for i in range(2, -1, -1):
@@ -89,6 +94,12 @@ def resize_image(im, max_img_size=cfg.max_train_img_size):
 def transform(img):
     width_r, height_r = img.size
     quad_shift = height_r // 50
+
+    def tint_image_p(color):
+        return partial(tint_image, color=color)
+
+    colors = ["#33b5e5", "#e5dc32", "#dba4d4", "#ceedc9", "#b5a392", "#f1ff38", "#fc7484", "#e074fc", "#7275ff"]
+    ratio = random.randint(2, 4)
     return [img,
             # rotate(img, random.randint(1, 4)),
             # rotate(img, random.randint(-4, -1)),
@@ -99,10 +110,33 @@ def transform(img):
             quad_transform(img, quad_shift, -quad_shift),
             quad_transform(img, -quad_shift, quad_shift),
             change_contrast(img, random.randint(50, 100)),
-            change_brightness(img, random.uniform(0.5, 1.9))
+            change_brightness(img, random.uniform(0.5, 1.9)),
+            crop(img,
+                 [tint_image_p(random.choice(colors)) for _ in range(ratio**2)],
+                 ratio)
             ]
 
-from PIL import Image, ImageEnhance
+
+def crop(im, list_trans, ratio):
+    im = im.copy()
+    imgwidth, imgheight = im.size
+    height = int(math.ceil(imgheight / ratio))
+    width = int(math.ceil(imgwidth / ratio))
+    quad = 0
+    for i in range(0, imgheight, height):
+        for j in range(0, imgwidth, width):
+            box = (j, i, j + width, i + height)
+            a = im.crop(box)
+            im.paste(list_trans[quad](a), box)
+            quad = quad + 1
+    return im
+
+
+def tint_image(src, color="#33b5e5"):
+    src.load()
+    gray = ImageOps.grayscale(src)
+    result = ImageOps.colorize(gray, (0, 0, 0, 0), color)
+    return result
 
 
 def change_brightness(img, level):
