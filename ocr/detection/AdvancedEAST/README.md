@@ -36,7 +36,7 @@ myelinio/advanced-east:v0.1.0 --batch_size=5&
 
 
 # Build predict image
- s2i build .  docker.io/myelinio/myelin-deployer-s2i-python:v0.1.2  myelinio/advanced-east-predict:v0.1.0
+./s2i build .  docker.io/myelinio/myelin-deployer-s2i-python:v0.1.3  myelinio/advanced-east-predict:v0.1.0
 
 
 docker run \
