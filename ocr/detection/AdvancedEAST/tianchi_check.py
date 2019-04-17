@@ -3,10 +3,10 @@ from PIL import Image, ImageDraw
 
 
 def test():
-    with Image.open('icpr/images_3T736/38894178-96380_RS0023_FLP_01_0000_max_600x600_0.jpg') as im:
+    with Image.open('demo/72828977-189686_CWK180204_FLP_01_0000_max_600x600.jpg') as im:
         # draw on the origin img
         draw = ImageDraw.Draw(im)
-        with open('icpr/txt_10000/38894178-96380_RS0023_FLP_01_0000_max_600x600.txt', 'r') as f:
+        with open('demo/72828977-189686_CWK180204_FLP_01_0000_max_600x600.txt', 'r') as f:
             anno_list = f.readlines()
         for anno in anno_list:
             anno_colums = anno.strip().split(',')

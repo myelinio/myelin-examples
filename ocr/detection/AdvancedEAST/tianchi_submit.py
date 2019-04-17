@@ -7,9 +7,10 @@ import cfg
 
 
 if __name__ == '__main__':
+    saved_model_weights_file_path = "saved_model/east_model_weights_3T736.h5"
     east = East()
     east_detect = east.east_network()
-    east_detect.load_weights(cfg.saved_model_weights_file_path)
+    east_detect.load_weights(saved_model_weights_file_path)
 
     image_test_dir = os.path.join(cfg.data_dir, 'icpr_mtwi_task3/image_test/')
     txt_test_dir = os.path.join(cfg.data_dir, 'icpr_mtwi_task3/txt_test/')

@@ -3,4 +3,6 @@ tensorflow-gpu
 keras
 Pillow
 myelin
+flask
+shapely
 opencv-python

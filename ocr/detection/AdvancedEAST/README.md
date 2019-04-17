@@ -9,17 +9,17 @@ myelinio/advanced-east-preprocess:v0.1.0
 
 docker build -t myelinio/advanced-east-preprocess:v0.1.0 -f Dockerfile.preprocess .
 
-find ../../floorplan/floorplan_2_east/ -type f -name "11*.jpg" -exec cp {} icpr/image_10000/ \; -print
-find ../../floorplan/floorplan_2_east/ -type f -name "11*.txt" -exec cp {} icpr/txt_10000/ \; -print
+find ../../floorplan/floorplan_2_east/ -type f -name "12*.jpg" -exec cp {} icpr1/image_10000/ \; -print
+find ../floorplan/floorplan_2_east/ -type f -name "12*.txt" -exec cp {} icpr1/txt_10000/ \; -print
 
-find rm_floorplans_east -type f -name "*.jpg" -exec cp {} icpr_small/image_10000/ \; -print
-find rm_floorplans_east -type f -name "*.txt" -exec cp {} icpr_small/txt_10000/ \; -print
+find rm_floorplans_east -type f -name "*.jpg" -exec cp {} icpr1/image_10000/ \; -print
+find rm_floorplans_east -type f -name "*.txt" -exec cp {} icpr1/txt_10000/ \; -print
 
 
 
-docker run \
--v /media/ryadh/DATA4T/Ryadh_data/data/dh-property/icpr_small:/data/icpr \
-myelinio/advanced-east-preprocess:v0.1.0
+nohup docker run \
+-v /media/ryadh/DATA4T/Ryadh_data/data/dh-property/icpr1:/data/icpr \
+myelinio/advanced-east-preprocess:v0.1.0 &
 
 
 # Train
@@ -28,10 +28,10 @@ docker build -t myelinio/advanced-east:v0.1.0 -f Dockerfile-gpu .
 
 
 nohup docker run \
--v /media/ryadh/DATA4T/Ryadh_data/data/dh-property/models1:/models/ \
--v /media/ryadh/DATA4T/Ryadh_data/data/dh-property/icpr_small:/data/icpr \
+-v /media/ryadh/DATA4T/Ryadh_data/data/dh-property/models2:/models/ \
+-v /media/ryadh/DATA4T/Ryadh_data/data/dh-property/icpr1:/data/icpr \
 -v /home/ryadh/.keras/models/:/root/.keras/models/ \
-myelinio/advanced-east:v0.1.0 --batch_size=10&
+myelinio/advanced-east:v0.1.0 --batch_size=5&
 
 
 

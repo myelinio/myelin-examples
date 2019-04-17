@@ -18,7 +18,7 @@ class DeployModel(object):
         self.c = metric.MetricClient()
 
     def predict(self, X, feature_names):
-        predictions = predict.predict(self.east_detect, X, cfg.pixel_threshold)
+        predictions = predict.predict_np(self.east_detect, X, cfg.pixel_threshold)
         return predictions
 
     def send_feedback(self, features, feature_names, reward, truth):

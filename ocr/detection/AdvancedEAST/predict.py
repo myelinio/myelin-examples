@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 from keras.preprocessing import image
 from keras.applications.vgg16 import preprocess_input
+import cv2
 
 import cfg
 from label import point_inside_of_quad
@@ -30,14 +31,21 @@ def cut_text_line(geo, scale_ratio_w, scale_ratio_h, im_array, img_path, s):
                 sub_im_arr[m - min_xy[1], n - min_xy[0], :] = 255
     sub_im = image.array_to_img(sub_im_arr, scale=False)
     sub_im.save(img_path + '_subim%d.jpg' % s)
+    return sub_im
 
 
 def predict(east_detect, img_path, pixel_threshold, quiet=False, save=True):
     img = image.load_img(img_path)
-    predict_img(east_detect, img, pixel_threshold, quiet, save)
+    return predict_img(east_detect, img, pixel_threshold, img_path, quiet, save)
 
 
-def predict_img(east_detect, img, pixel_threshold, quiet=False, save=True):
+def predict_np(east_detect, img_np, pixel_threshold):
+    img = cv2.imdecode(img_np, 1)
+    img_pil = Image.fromarray(img)
+    return predict_img(east_detect, img_pil, pixel_threshold, None)
+
+
+def predict_img(east_detect, img, pixel_threshold, save_path, quiet=False, save=True):
     im = img
     d_wight, d_height = resize_image(img, cfg.max_predict_img_size)
     img = img.resize((d_wight, d_height), Image.NEAREST).convert('RGB')
@@ -75,9 +83,10 @@ def predict_img(east_detect, img, pixel_threshold, quiet=False, save=True):
                    (px - 0.5 * cfg.pixel_size, py - 0.5 * cfg.pixel_size)],
                   width=line_width, fill=line_color)
     if save:
-        im.save(img_path + '_act.jpg')
+        im.save(save_path + '_act.jpg')
     quad_draw = ImageDraw.Draw(quad_im)
     txt_items = []
+    sub_imgs = []
     for score, geo, s in zip(quad_scores, quad_after_nms,
                              range(len(quad_scores))):
         if np.amin(score) > 0:
@@ -87,8 +96,9 @@ def predict_img(east_detect, img, pixel_threshold, quiet=False, save=True):
                             tuple(geo[3]),
                             tuple(geo[0])], width=2, fill='red')
             if cfg.predict_cut_text_line:
-                cut_text_line(geo, scale_ratio_w, scale_ratio_h, im_array,
-                              img_path, s)
+                sub_im = cut_text_line(geo, scale_ratio_w, scale_ratio_h, im_array,
+                                       save_path[:-4], s)
+                sub_imgs.append(sub_im)
             rescaled_geo = geo / [scale_ratio_w, scale_ratio_h]
             rescaled_geo_list = np.reshape(rescaled_geo, (8,)).tolist()
             txt_item = ','.join(map(str, rescaled_geo_list))
@@ -96,12 +106,12 @@ def predict_img(east_detect, img, pixel_threshold, quiet=False, save=True):
         elif not quiet:
             print('quad invalid with vertex num less then 4.')
     if save:
-        quad_im.save(img_path + '_predict.jpg')
+        quad_im.save(save_path[:-4] + '_predict.jpg')
         if cfg.predict_write2txt and len(txt_items) > 0:
-            with open(img_path[:-4] + '.txt', 'w') as f_txt:
+            with open(save_path[:-4] + '.txt', 'w') as f_txt:
                 f_txt.writelines(txt_items)
 
-    return quad_im
+    return {"quad_im": quad_im, "txt_items": txt_items, "sub_imgs": sub_imgs}
 
 
 def predict_txt(east_detect, img_path, txt_path, pixel_threshold, quiet=False):
@@ -138,7 +148,7 @@ def predict_txt(east_detect, img_path, txt_path, pixel_threshold, quiet=False):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', '-p',
-                        default='demo/f5.jpg',
+                        default='demo/f8.jpg',
                         help='image path')
     parser.add_argument('--threshold', '-t',
                         default=cfg.pixel_threshold,
