@@ -1,0 +1,11 @@
+numpy
+scipy
+pillow
+easydict
+opencv-python
+keras
+h5py
+PyYAML
+cython
+tensorflow
+myelin
