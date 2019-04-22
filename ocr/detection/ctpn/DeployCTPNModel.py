@@ -8,7 +8,7 @@ from text_detect import load_tf_model, ctpn, draw_boxes
 saved_model_weights_file_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
 
 
-class DeployModel(object):
+class DeployCTPNModel(object):
 
     def __init__(self):
         cfg_from_file('./ctpn/text.yml')
@@ -36,7 +36,7 @@ class DeployModel(object):
 
 if __name__ == '__main__':
     import os
-    d = DeployModel()
+    d = DeployCTPNModel()
     from seldon_core.model_microservice import get_rest_microservice
     app = get_rest_microservice(d)
     app.run(host='0.0.0.0', port=5000)

@@ -7,6 +7,7 @@ from keras.applications.vgg16 import preprocess_input
 import cv2
 
 import cfg
+from DeployModel import graph
 from label import point_inside_of_quad
 from network import East
 from preprocess import resize_image
@@ -40,9 +41,9 @@ def predict(east_detect, img_path, pixel_threshold, quiet=False, save=True):
 
 
 def predict_np(east_detect, img_np, pixel_threshold):
-    img = cv2.imdecode(img_np, 1)
-    img_pil = Image.fromarray(img)
-    return predict_img(east_detect, img_pil, pixel_threshold, None)
+    # img = cv2.imdecode(img_np, 1)
+    img_pil = Image.fromarray(img_np)
+    return predict_img(east_detect, img_pil, pixel_threshold, None, quiet=True, save=False)
 
 
 def predict_img(east_detect, img, pixel_threshold, save_path, quiet=False, save=True):
@@ -52,7 +53,8 @@ def predict_img(east_detect, img, pixel_threshold, save_path, quiet=False, save=
     img = image.img_to_array(img)
     img = preprocess_input(img, mode='tf')
     x = np.expand_dims(img, axis=0)
-    y = east_detect.predict(x)
+    with graph.as_default():
+        y = east_detect.predict(x)
 
     y = np.squeeze(y, axis=0)
     y[:, :, :3] = sigmoid(y[:, :, :3])
@@ -111,7 +113,7 @@ def predict_img(east_detect, img, pixel_threshold, save_path, quiet=False, save=
             with open(save_path[:-4] + '.txt', 'w') as f_txt:
                 f_txt.writelines(txt_items)
 
-    return {"quad_im": quad_im, "txt_items": txt_items, "sub_imgs": sub_imgs}
+    return quad_im, txt_items, sub_imgs
 
 
 def predict_txt(east_detect, img_path, txt_path, pixel_threshold, quiet=False):
