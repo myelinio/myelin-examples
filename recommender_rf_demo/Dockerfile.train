@@ -1,0 +1,17 @@
+FROM python:3.6
+
+RUN pip3 install --upgrade pip
+
+RUN apt-get update && apt-get install -y libopenblas-dev
+
+COPY requirements.txt requirements.txt
+RUN pip install -r  requirements.txt
+
+WORKDIR /work
+
+RUN mkdir /work/recommender_demo/
+
+COPY myelin_model /work/recommender_demo/myelin_model
+COPY train.py /work/recommender_demo/train.py
+
+CMD python -m recommender_demo.train

@@ -1,0 +1,106 @@
+apiVersion: myelinproj.io/v1alpha1
+kind: Axon
+metadata:
+  name: ml-rec
+spec:
+
+  serviceAccountName: myelin-app-myelin
+
+  artifacts:
+    - name: rec-source
+      path: /src
+      git:
+        repo: https://github.com/myelinio/myelin-examples.git
+        revision: master
+
+  volume:
+    name: axon-store
+    flexVolume:
+      driver: ceph.rook.io/rook
+      fsType: ceph
+      options:
+        fsName: myfs # name of the filesystem specified in the filesystem CRD.
+        clusterNamespace: myelin # namespace where the Rook cluster is deployed
+
+  tasks:
+
+    - name: DataPrepMyelinRecommender
+      container:
+        imageBuild:
+          repositoryName: preprocess-myelin-recommender
+          artifact: rec-source
+          buildLocation: /src/recommender_rf_demo
+          dockerfile:
+            path: Dockerfile.preprocess
+
+
+    - name: TrainMyelinRecommender
+      train:
+        imageBuild:
+          repositoryName: train-myelin-recommender
+          artifact: rec-source
+          buildLocation: /src/recommender_rf_demo
+          dockerfile:
+            path: Dockerfile.train
+
+    - name: DeployMyelinRecommender
+      deploy:
+        deploymentType: "canary"
+        replicas: 2
+        endpointType: REST
+        endpointRestType: Multipart
+        imageBuild:
+          repositoryName: deploy-myelin-recommender
+          artifact: rec-source
+          buildLocation: /src/
+          s2i:
+            contextDir: recommender_rf_demo
+            buiderImage: docker.io/myelinio/myelin-deployer-s2i-python:v0.1.2
+
+  sensors:
+
+    - name: TrainOnStart
+      tasks:
+        - resourceExecutor:
+            task: DataPrepMyelinRecommender
+        - trainer:
+            task: TrainMyelinRecommender
+
+
+    - name: DeploymentDecisionMaker
+      triggers:
+        - name: mnistTrainingComplete
+          type: Lifecycle
+          condition: Succeeded
+          task: TrainMyelinRecommender
+
+      tasks:
+        - deployer:
+            deploymentType: "canary"
+            replicas: 2
+            models:
+              - name: MyelinRFRecommender
+                trainer: TrainMyelinRecommender
+                deployer: DeployMyelinRecommender
+                modelSelectionStrategy: "best"
+            routes:
+              - path: /predict
+                dag:
+                  - task: DeployMyelinRecommender
+                    path: /predict
+              - path: /send-feedback
+                dag:
+                  - task: DeployMyelinRecommender
+                    path: /send-feedback
+
+
+    - name: PostDeploymentDecisionMaker
+      triggers:
+        - name: RecommenderDeployAccuracy
+          type: Alert
+          condition: "{{recommender_deploy_accuracy}} < 0.90"
+      tasks:
+        - resourceExecutor:
+            task: DataPrepMyelinRecommender
+        - trainer:
+            task: TrainMyelinRecommender
