@@ -1,7 +1,7 @@
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
-  name: ml-rec
+  name: ml-rec-rf
 spec:
 
   serviceAccountName: myelin-app-myelin
@@ -45,8 +45,6 @@ spec:
 
     - name: DeployMyelinRecommender
       deploy:
-        deploymentType: "canary"
-        replicas: 2
         endpointType: REST
         endpointRestType: Multipart
         imageBuild:
@@ -78,9 +76,10 @@ spec:
         - deployer:
             rolloutSpec:
               - match:
-                  destinations:
-                    - destination: 0
-                      weight: 100
+                destinations:
+                  - destination: 0
+                    weight: 100
+
             replicas: 1
             models:
               - name: MyelinRFRecommender
