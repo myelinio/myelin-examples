@@ -76,8 +76,13 @@ spec:
 
       tasks:
         - deployer:
+            rolloutSpec:
+              - match:
+                  destinations:
+                    - destination: 0
+                      weight: 100
             deploymentType: "canary"
-            replicas: 2
+            replicas: 1
             models:
               - name: MyelinRFRecommender
                 trainer: TrainMyelinRecommender
