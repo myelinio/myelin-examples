@@ -1,10 +1,10 @@
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
-  name: ml-rec
+  name: ml-gpt2
 spec:
 
-  serviceAccountName: myelin-app-myelin
+  serviceAccountName: myelin-minimal
 
   artifacts:
     - name: gpt2-source
@@ -20,7 +20,7 @@ spec:
       fsType: ceph
       options:
         fsName: myfs # name of the filesystem specified in the filesystem CRD.
-        clusterNamespace: myelin # namespace where the Rook cluster is deployed
+        clusterNamespace: myelin-app # namespace where the Rook cluster is deployed
 
   tasks:
 
@@ -45,8 +45,6 @@ spec:
 
     - name: DeployGPT2
       deploy:
-        deploymentType: "canary"
-        replicas: 2
         endpointType: REST
         endpointRestType: Multipart
         imageBuild:
@@ -80,7 +78,6 @@ spec:
               - destinations:
                   - destinationIndex: 0
                     weight: 100
-            replicas: 1
             models:
               - name: MyelinGPT2
                 modelSelectionStrategy: "best"
@@ -96,11 +93,11 @@ spec:
             routes:
               - path: /predict
                 dag:
-                  - task: MyelinGPT2
+                  - model: MyelinGPT2
                     path: /predict
               - path: /send-feedback
                 dag:
-                  - task: MyelinGPT2
+                  - model: MyelinGPT2
                     path: /send-feedback
 
 

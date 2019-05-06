@@ -18,8 +18,7 @@ class GPT2Generator(object):
     def __init__(self):
         self.sess = GPT2Generator.start_tf_sess()
         self.load_gpt2(self.sess)
-
-    # self.c = metric.MetricClient()
+        self.c = metric.MetricClient()
 
     def load_gpt2(self, sess,
                   run_name="run1"):
