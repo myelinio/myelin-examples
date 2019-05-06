@@ -1,0 +1,10 @@
+FROM python:3.6-slim
+
+COPY requirements.preprocess.txt requirements.txt
+RUN pip install -r  requirements.txt
+
+WORKDIR /work
+
+COPY ./preprocess.py /work/preprocess.py
+
+CMD python preprocess.py
