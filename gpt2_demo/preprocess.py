@@ -15,8 +15,8 @@ def download_gpt2(data_path, model_name='117M'):
 					 'model.ckpt.meta', 'vocab.bpe']
 
 	trained_filenames = ['checkpoint', 'encoder.json', 'hparams.json',
-					 'model-1001.data-00000-of-00001', 'model.1001.index',
-					 'model.1001.meta', 'vocab.bpe']
+					 'model-1001.data-00000-of-00001', 'model-1001.index',
+					 'model-1001.meta', 'vocab.bpe']
 
 	for filename in trained_filenames:
 
