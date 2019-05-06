@@ -1,0 +1,116 @@
+apiVersion: myelinproj.io/v1alpha1
+kind: Axon
+metadata:
+  name: ml-rec
+spec:
+
+  serviceAccountName: myelin-app-myelin
+
+  artifacts:
+    - name: gpt2-source
+      path: /src
+      git:
+        repo: https://github.com/myelinio/myelin-examples.git
+        revision: gpt2
+
+  volume:
+    name: axon-store
+    flexVolume:
+      driver: ceph.rook.io/rook
+      fsType: ceph
+      options:
+        fsName: myfs # name of the filesystem specified in the filesystem CRD.
+        clusterNamespace: myelin # namespace where the Rook cluster is deployed
+
+  tasks:
+
+    - name: DataPrepGPT2
+      container:
+        imageBuild:
+          repositoryName: preprocess-myelin-gpt2
+          artifact: gpt2-source
+          buildLocation: /src/gpt2_demo
+          dockerfile:
+            path: Dockerfile.preprocess
+
+
+    - name: TrainGPT2
+      train:
+        imageBuild:
+          repositoryName: train-myelin-gpt2
+          artifact: gpt2-source
+          buildLocation: /src/gpt2_demo
+          dockerfile:
+            path: Dockerfile.train
+
+    - name: DeployGPT2
+      deploy:
+        deploymentType: "canary"
+        replicas: 2
+        endpointType: REST
+        endpointRestType: Multipart
+        imageBuild:
+          repositoryName: deploy-myelin-gpt2
+          artifact: gpt2-source
+          buildLocation: /src/
+          s2i:
+            contextDir: dpt2_demo
+            buiderImage: docker.io/myelinio/myelin-deployer-s2i-cuda10-py3:v0.1.4
+
+  sensors:
+
+    - name: TrainOnStart
+      tasks:
+        - resourceExecutor:
+            task: DataPrepGPT2
+        - trainer:
+            task: TrainGPT2
+
+
+    - name: DeploymentDecisionMaker
+      triggers:
+        - name: trainComplete
+          type: Lifecycle
+          condition: Succeeded
+          task: TrainGPT2
+
+      tasks:
+        - deployer:
+            rolloutSpec:
+              - destinations:
+                  - destinationIndex: 0
+                    weight: 100
+            replicas: 1
+            models:
+              - name: MyelinGPT2
+                modelSelectionStrategy: "best"
+                routingStrategy:
+                  - destinations:
+                      - destinationName: ShakespeareGP2
+                        weight: 100
+                backendModels:
+                  - name: ShakespeareGP2
+                    trainer: TrainGPT2
+                    deployer: DeployGPT2
+                    modelSelectionStrategy: "best"
+            routes:
+              - path: /predict
+                dag:
+                  - task: MyelinGPT2
+                    path: /predict
+              - path: /send-feedback
+                dag:
+                  - task: MyelinGPT2
+                    path: /send-feedback
+
+
+    - name: PostDeploymentDecisionMaker
+      triggers:
+        - name: DeployAccuracy
+          type: Alert
+          condition: "{{shakespeare_gpt2_deploy_accuracy}} < 0.90"
+      tasks:
+        - resourceExecutor:
+            task: DataPrepGPT2
+        - trainer:
+            task: TrainGPT2

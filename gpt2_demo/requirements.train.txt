@@ -1,0 +1,2 @@
+toposort==1.5
+tensorflow==1.12.0
