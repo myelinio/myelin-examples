@@ -26,6 +26,7 @@ spec:
 
     - name: DataPrepGPT2
       container:
+#        image: gcr.io/myelin-development/preprocess-myelin-gpt2:1.0.1-55-g6f987a5
         imageBuild:
           repositoryName: preprocess-myelin-gpt2
           artifact: gpt2-source
