@@ -55,7 +55,6 @@ spec:
           s2i:
             contextDir: dpt2_demo
             buiderImage: docker.io/myelinio/myelin-deployer-s2i-cuda10-py3:v0.1.4
-Lvnvfn67
 
   sensors:
 
