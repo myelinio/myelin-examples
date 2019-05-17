@@ -88,7 +88,7 @@ spec:
                 modelSelectionStrategy: "best"
                 routingStrategy:
                   - destinations:
-                      - destinationName: MyelinTest1
+                      - destinationName: BackendRecommender
                         weight: 100
                 backendModels:
                   - name: BackendRecommender
