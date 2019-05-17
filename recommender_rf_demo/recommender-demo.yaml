@@ -53,7 +53,7 @@ spec:
           buildLocation: /src/
           s2i:
             contextDir: recommender_rf_demo
-            buiderImage: docker.io/myelinio/myelin-deployer-s2i-python:v0.1.2
+            buiderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
 
   sensors:
 
