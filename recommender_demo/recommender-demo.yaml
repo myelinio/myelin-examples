@@ -4,7 +4,7 @@ metadata:
   name: ml-rec
 spec:
 
-  serviceAccountName: myelin-app-myelin
+  serviceAccountName: myelin-minimal
 
   artifacts:
     - name: rec-source
@@ -13,14 +13,15 @@ spec:
         repo: https://github.com/myelinio/myelin-examples.git
         revision: master
 
-  volume:
-    name: axon-store
-    flexVolume:
-      driver: ceph.rook.io/rook
-      fsType: ceph
-      options:
-        fsName: myfs # name of the filesystem specified in the filesystem CRD.
-        clusterNamespace: myelin # namespace where the Rook cluster is deployed
+  volumeClaimTemplate:
+    metadata:
+      name: axon-store
+    spec:
+      storageClassName: nfs
+      accessModes: ["ReadWriteMany"]
+      resources:
+        requests:
+          storage: 1Gi
 
   tasks:
 
@@ -45,8 +46,6 @@ spec:
 
     - name: DeployMyelinRecommender
       deploy:
-        deploymentType: "canary"
-        replicas: 2
         endpointType: REST
         endpointRestType: Multipart
         imageBuild:
@@ -55,7 +54,7 @@ spec:
           buildLocation: /src/
           s2i:
             contextDir: recommender_demo
-            buiderImage: docker.io/myelinio/myelin-deployer-s2i-python:v0.1.2
+            buiderImage: docker.io/myelinio/myelinio/myelin-deployer-s2i-py3:v0.1.4
 
   sensors:
 
@@ -76,23 +75,35 @@ spec:
 
       tasks:
         - deployer:
-            deploymentType: "canary"
-            replicas: 2
+            name: recommenderdeployer
+            replicas: 1
+            rolloutSpec:
+              - destinations:
+                  - destinationIndex: 0
+                    weight: 50
+                  - destinationIndex: 1
+                    weight: 50
             models:
-              - name: MyelinKerasRecommender
-                trainer: TrainMyelinRecommender
-                deployer: DeployMyelinRecommender
+              - name: RecommenderModel
                 modelSelectionStrategy: "best"
+                routingStrategy:
+                  - destinations:
+                      - destinationName: MyelinTest1
+                        weight: 100
+                backendModels:
+                  - name: BackendRecommender
+                    trainer: TrainMyelinRecommender
+                    deployer: DeployMyelinRecommender
+                    modelSelectionStrategy: "best"
             routes:
               - path: /predict
                 dag:
-                  - task: DeployMyelinRecommender
+                  - model: RecommenderModel
                     path: /predict
               - path: /send-feedback
                 dag:
-                  - task: DeployMyelinRecommender
+                  - model: RecommenderModel
                     path: /send-feedback
-
 
     - name: PostDeploymentDecisionMaker
       triggers:
