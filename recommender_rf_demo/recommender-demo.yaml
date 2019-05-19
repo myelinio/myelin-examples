@@ -13,14 +13,15 @@ spec:
         repo: https://github.com/myelinio/myelin-examples.git
         revision: master
 
-  volume:
-    name: axon-store
-    flexVolume:
-      driver: ceph.rook.io/rook
-      fsType: ceph
-      options:
-        fsName: myfs # name of the filesystem specified in the filesystem CRD.
-        clusterNamespace: myelin # namespace where the Rook cluster is deployed
+  volumeClaimTemplate:
+    metadata:
+      name: axon-store
+    spec:
+      storageClassName: nfs
+      accessModes: ["ReadWriteMany"]
+      resources:
+        requests:
+          storage: 1Gi
 
   tasks:
 
@@ -74,28 +75,35 @@ spec:
 
       tasks:
         - deployer:
+            name: modeldeployer
             rolloutSpec:
-              - match:
-                destinations:
-                  - destination: 0
-                    weight: 100
-
+              - destinations:
+                  - destinationIndex: 0
+                    weight: 50
+                  - destinationIndex: 1
+                    weight: 50
             replicas: 1
             models:
               - name: MyelinRFRecommender
-                trainer: TrainMyelinRecommender
-                deployer: DeployMyelinRecommender
                 modelSelectionStrategy: "best"
+                routingStrategy:
+                  - destinations:
+                      - destinationName: BackendRecommender
+                        weight: 100
+                backendModels:
+                  - name: BackendRecommender
+                    trainer: TrainMyelinRecommender
+                    deployer: DeployMyelinRecommender
+                    modelSelectionStrategy: "best"
             routes:
               - path: /predict
                 dag:
-                  - task: DeployMyelinRecommender
+                  - model: MyelinRFRecommender
                     path: /predict
               - path: /send-feedback
                 dag:
-                  - task: DeployMyelinRecommender
+                  - model: MyelinRFRecommender
                     path: /send-feedback
-
 
     - name: PostDeploymentDecisionMaker
       triggers:
