@@ -48,6 +48,11 @@ def Predict():
     return jsonify(response)
 
 
+@app.route("/health", methods=["GET", "POST"])
+def health():
+    return jsonify({"message": "OK"})
+
+
 @app.route("/send-feedback", methods=["GET", "POST"])
 def SendFeedback():
     feedback = extract_message()
@@ -108,6 +113,7 @@ def get_custom_tags(component):
     else:
         return None
 
+
 def get_data_from_json(message):
     if "data" in message:
         datadef = message.get("data")
@@ -120,6 +126,7 @@ def get_data_from_json(message):
         strJson = json.dumps(message)
         raise Exception(
             "Can't find data in json: " + strJson)
+
 
 def array_to_rest_datadef(array, names, original_datadef):
     datadef = {"names": names}
