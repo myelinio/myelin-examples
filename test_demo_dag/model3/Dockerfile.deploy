@@ -5,6 +5,7 @@ RUN pip install -r  requirements.txt
 
 WORKDIR /work
 
-COPY ./train.py /work/train.py
+COPY ./model.py /work/model.py
+COPY ./predict_rest.py /work/predict_rest.py
 
-CMD python train.py
+CMD python predict_rest.py
