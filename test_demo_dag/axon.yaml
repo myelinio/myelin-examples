@@ -1,0 +1,99 @@
+apiVersion: myelinproj.io/v1alpha1
+kind: Axon
+metadata:
+  name: model-graph
+spec:
+
+  serviceAccountName: myelin-app-myelin
+
+  artifacts:
+    - name: rec-source
+      path: /src
+      git:
+        repo: https://github.com/myelinio/myelin-examples.git
+        revision: master
+
+  volumeClaimTemplate:
+    metadata:
+      name: axon-store
+    spec:
+      storageClassName: standard
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
+  tasks:
+
+    - name: DataPrepModel1
+      container:
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/preprocess-myelin-test:1.0.1-18-g1726194
+
+    - name: TrainModel1
+      train:
+            imageBuild:
+              repositoryName: model-graph-test
+              artifact: rec-source
+              buildLocation: /src/test_demo_dag/model1
+              dockerfile:
+                path: Dockerfile.train
+
+    - name: DeployModel1
+      deploy:
+        imageBuild:
+          repositoryName: deploy-myelin-test
+          artifact: rec-source
+          buildLocation: /src/
+          s2i:
+            contextDir: test_demo_dag/model1
+            buiderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
+        endpointType: REST
+        endpointRestType: Multipart
+
+  sensors:
+
+    - name: TrainOnRest
+      triggers:
+        - name: RestTrigger
+          type: Rest
+
+      tasks:
+        - resourceExecutor:
+            task: DataPrepModel1
+        - trainer:
+            task: TrainModel1
+
+    - name: DeploymentDecisionMaker
+      triggers:
+        - name: TestTrainingComplete
+          type: Lifecycle
+          condition: Succeeded
+          task: TrainModel1
+      tasks:
+        - deployer:
+            name: deployer1
+            rolloutSpec:
+              - destinations:
+                  - destinationIndex: 0
+                    weight: 100
+            replicas: 1
+            models:
+              - name: DeployModel1
+                modelSelectionStrategy: "best"
+                routingStrategy:
+                  - destinations:
+                      - destinationName: model1
+                        weight: 100
+                backendModels:
+                  - name: model1
+                    trainer: TrainModel1
+                    deployer: DeployModel1
+                    modelSelectionStrategy: "best"
+            routes:
+              - path: /predict
+                dag:
+                  - model: DeployModel1
+                    path: /predict
+              - path: /send-feedback
+                dag:
+                  - model: DeployModel1
+                    path: /send-feedback
