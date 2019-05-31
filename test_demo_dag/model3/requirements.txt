@@ -2,3 +2,4 @@ scikit-learn>=0.18
 pandas>=0.22.0
 myelin==0.0.10
 Flask==1.0.3
+Flask-Cors=3.0.7
