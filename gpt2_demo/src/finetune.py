@@ -1,7 +1,7 @@
 import json
-from gpt2_demo.src import encoder, model, sample, memory_saving_gradients
-from gpt2_demo.src.accumulate import AccumulatingOptimizer
-from gpt2_demo.src.load_dataset import load_dataset, Sampler
+from ..src import encoder, model, sample, memory_saving_gradients
+from ..src.accumulate import AccumulatingOptimizer
+from ..src.load_dataset import load_dataset, Sampler
 import os
 import time
 import shutil
