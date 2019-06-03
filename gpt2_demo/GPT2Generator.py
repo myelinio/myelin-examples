@@ -5,8 +5,8 @@ import json
 import numpy as np
 from myelin import metric
 import tensorflow as tf
-from src import encoder, model, sample
-from src.finetune import finetune
+from .src import encoder, model, sample
+from .src.finetune import finetune
 from tensorflow.core.protobuf import rewriter_config_pb2
 
 model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
