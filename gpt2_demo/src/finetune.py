@@ -1,7 +1,7 @@
 import json
-from ..src import encoder, model, memory_saving_gradients
-from ..src.accumulate import AccumulatingOptimizer
-from ..src.load_dataset import load_dataset, Sampler
+from . import encoder, model, memory_saving_gradients
+from .accumulate import AccumulatingOptimizer
+from .load_dataset import load_dataset, Sampler
 import os
 import time
 import shutil
