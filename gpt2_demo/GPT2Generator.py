@@ -131,16 +131,10 @@ class GPT2Generator(object):
         return tf.Session(config=config)
 
     def predict(self, text_array, feature_names):
-        single_text = test.generate(test.sess, length=100, return_as_list=True,
+        single_text = self.generate(self.sess, length=100, return_as_list=True,
                                     prefix=text_array[0])
         return [single_text[0]]
 
     def send_feedback(self, features, feature_names, reward, truth):
         print("Posting reward: %s" % reward, file=sys.stderr)
         self.c.post_update("shakespeare_gpt2_deploy_accuracy", reward)
-
-
-if __name__ == '__main__':
-    test = GPT2Generator()
-    x = test.predict(["ROMEO, It is the east, and Juliet is the sun! Arise fair sun and kill the envious moon."], None)
-    print(x)
