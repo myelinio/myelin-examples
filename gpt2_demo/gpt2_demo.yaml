@@ -55,7 +55,7 @@ spec:
           buildLocation: /src/
           s2i:
             contextDir: gpt2_demo
-            buiderImage: docker.io/myelinio/myelin-deployer-s2i-cuda10-py3:v0.1.4
+            buiderImage: docker.io/myelinio/myelin-deployer-s2i-cuda10-py3:v0.1.5
 
   sensors:
 
