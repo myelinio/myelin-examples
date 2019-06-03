@@ -14,10 +14,9 @@ class DeployModel4(object):
 
     def predict(self, features_dict):
         x_model1 = features_dict['DeployModel1']
-        x_model2 = features_dict['DeployModel2']
         x_model3 = features_dict['DeployModel3']
         x_input = features_dict['INPUT']
-        X = np.concatenate([[x_model1], [x_model2], [x_model3], x_input], axis=1)
+        X = np.concatenate([[x_model1], [x_model3], x_input], axis=1)
         predictions = self.model.predict(X)
         return predictions
 
