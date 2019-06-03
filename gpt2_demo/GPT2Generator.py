@@ -5,7 +5,7 @@ import json
 import numpy as np
 from myelin import metric
 import tensorflow as tf
-from src import encoder, model, sample
+from src import encoder, model
 from src.finetune import finetune
 from tensorflow.core.protobuf import rewriter_config_pb2
 
@@ -70,7 +70,7 @@ class GPT2Generator(object):
         np.random.seed(seed)
         tf.set_random_seed(seed)
 
-        output = sample.sample_sequence(
+        output = model.sample_sequence(
             hparams=hparams, length=length,
             start_token=enc.encoder['<|endoftext|>'] if not prefix else None,
             context=context if prefix else None,
