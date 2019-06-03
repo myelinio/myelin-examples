@@ -6,7 +6,7 @@ import numpy as np
 model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
 
 
-class DeployModel3(object):
+class DeployModel4(object):
 
     def __init__(self):
         self.model = pickle.load(open(model_path + "lr.pkl", 'rb'))
@@ -15,8 +15,9 @@ class DeployModel3(object):
     def predict(self, features_dict):
         x_model1 = features_dict['DeployModel1']
         x_model2 = features_dict['DeployModel2']
+        x_model3 = features_dict['DeployModel3']
         x_input = features_dict['INPUT']
-        X = np.concatenate([[x_model1], [x_model2], x_input], axis=1)
+        X = np.concatenate([[x_model1], [x_model2], [x_model3], x_input], axis=1)
         predictions = self.model.predict(X)
         return predictions
 
@@ -32,4 +33,4 @@ class DeployModel3(object):
 
 
 if __name__ == '__main__':
-    d = DeployModel3()
+    d = DeployModel4()
