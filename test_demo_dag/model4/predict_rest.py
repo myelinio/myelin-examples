@@ -15,7 +15,7 @@ logger.setLevel(logging.INFO)
 app = Flask(__name__)
 CORS(app)
 
-user_model = model.DeployModel3()
+user_model = model.DeployModel4()
 
 
 @app.route("/predict", methods=["GET", "POST"])
