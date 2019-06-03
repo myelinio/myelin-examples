@@ -1,5 +1,5 @@
 import json
-from ..src import encoder, model, sample, memory_saving_gradients
+from ..src import encoder, model, memory_saving_gradients
 from ..src.accumulate import AccumulatingOptimizer
 from ..src.load_dataset import load_dataset, Sampler
 import os
@@ -72,7 +72,7 @@ def finetune(sess,
 		tf.nn.sparse_softmax_cross_entropy_with_logits(
 			labels=context[:, 1:], logits=output['logits'][:, :-1]))
 
-	tf_sample = sample.sample_sequence(
+	tf_sample = model.sample_sequence(
 		hparams=hparams,
 		length=sample_length,
 		context=context,
