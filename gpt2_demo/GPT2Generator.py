@@ -5,8 +5,8 @@ import json
 import numpy as np
 from myelin import metric
 import tensorflow as tf
-from gpt2_demo.src import encoder, model, sample
-from gpt2_demo.src.finetune import finetune
+from src import encoder, model
+from src.finetune import finetune
 from tensorflow.core.protobuf import rewriter_config_pb2
 
 model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
@@ -70,7 +70,7 @@ class GPT2Generator(object):
         np.random.seed(seed)
         tf.set_random_seed(seed)
 
-        output = sample.sample_sequence(
+        output = model.sample_sequence(
             hparams=hparams, length=length,
             start_token=enc.encoder['<|endoftext|>'] if not prefix else None,
             context=context if prefix else None,
@@ -131,16 +131,10 @@ class GPT2Generator(object):
         return tf.Session(config=config)
 
     def predict(self, text_array, feature_names):
-        single_text = test.generate(test.sess, length=100, return_as_list=True,
+        single_text = self.generate(self.sess, length=100, return_as_list=True,
                                     prefix=text_array[0])
         return [single_text[0]]
 
     def send_feedback(self, features, feature_names, reward, truth):
         print("Posting reward: %s" % reward, file=sys.stderr)
         self.c.post_update("shakespeare_gpt2_deploy_accuracy", reward)
-
-
-if __name__ == '__main__':
-    test = GPT2Generator()
-    x = test.predict(["ROMEO, It is the east, and Juliet is the sun! Arise fair sun and kill the envious moon."], None)
-    print(x)

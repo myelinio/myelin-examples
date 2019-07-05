@@ -11,16 +11,17 @@ spec:
       path: /src
       git:
         repo: https://github.com/myelinio/myelin-examples.git
-        revision: gpt2
+        revision: master
 
-  volume:
-    name: axon-store
-    flexVolume:
-      driver: ceph.rook.io/rook
-      fsType: ceph
-      options:
-        fsName: myfs # name of the filesystem specified in the filesystem CRD.
-        clusterNamespace: myelin-app # namespace where the Rook cluster is deployed
+  volumeClaimTemplate:
+    metadata:
+      name: axon-store
+    spec:
+      storageClassName: nfs
+      accessModes: ["ReadWriteMany"]
+      resources:
+        requests:
+          storage: 1Gi
 
   tasks:
 
@@ -53,8 +54,8 @@ spec:
           artifact: gpt2-source
           buildLocation: /src/
           s2i:
-            contextDir: dpt2_demo
-            buiderImage: docker.io/myelinio/myelin-deployer-s2i-cuda10-py3:v0.1.4
+            contextDir: gpt2_demo
+            buiderImage: docker.io/myelinio/myelin-deployer-s2i-cuda10-py3:v0.1.5
 
   sensors:
 
@@ -75,6 +76,7 @@ spec:
 
       tasks:
         - deployer:
+            name: deployer1
             rolloutSpec:
               - destinations:
                   - destinationIndex: 0
@@ -84,10 +86,10 @@ spec:
                 modelSelectionStrategy: "best"
                 routingStrategy:
                   - destinations:
-                      - destinationName: ShakespeareGP2
+                      - destinationName: shakespearegp2
                         weight: 100
                 backendModels:
-                  - name: ShakespeareGP2
+                  - name: shakespearegp2
                     trainer: TrainGPT2
                     deployer: DeployGPT2
                     modelSelectionStrategy: "best"
