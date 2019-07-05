@@ -1,2 +1,2 @@
 [auth]
-credential_file_override = /var/secrets/google/service_key.json
+credential_file_override = /var/secrets/google/spark-sa.json
