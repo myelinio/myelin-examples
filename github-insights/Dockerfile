@@ -11,11 +11,12 @@ RUN mvn clean package
 FROM google/cloud-sdk
 
 #ENV GOOGLE_APPLICATION_CREDENTIALS /var/secrets/google/service_key.json/
+RUN mkdir /var/secrets/google/
 COPY /var/secrets/google/ /var/secrets/google/
-
 RUN ls /var/secrets/google/
 
 WORKDIR /deploy
+
 #COPY ./github-insights-1.0-SNAPSHOT-jar-with-dependencies.jar .
 COPY --from=mavenbuild /app/target/github-insights-1.0-SNAPSHOT-jar-with-dependencies.jar .
 
