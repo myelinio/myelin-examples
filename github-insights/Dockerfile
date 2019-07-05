@@ -12,7 +12,6 @@ RUN mvn clean package
 
 FROM google/cloud-sdk
 
-#ENV GOOGLE_APPLICATION_CREDENTIALS /var/secrets/google/service_key.json/
 RUN mkdir -p /var/secrets/google/
 ADD secrets/ /var/secrets/google/
 RUN ls /var/secrets/google/
@@ -23,6 +22,8 @@ WORKDIR /deploy
 COPY --from=mavenbuild /app/target/github-insights-1.0-SNAPSHOT-jar-with-dependencies.jar .
 
 RUN ls /deploy
+ENV GOOGLE_APPLICATION_CREDENTIALS /var/secrets/google/service_key.json
+RUN gcloud config list
 
 RUN gsutil cp ./github-insights-1.0-SNAPSHOT-jar-with-dependencies.jar gs://myelin-development-spark-on-k8s2/jars/
 
