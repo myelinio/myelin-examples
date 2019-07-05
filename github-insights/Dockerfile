@@ -21,11 +21,15 @@ WORKDIR /deploy
 #COPY ./github-insights-1.0-SNAPSHOT-jar-with-dependencies.jar .
 COPY --from=mavenbuild /app/target/github-insights-1.0-SNAPSHOT-jar-with-dependencies.jar .
 
-#ADD ./configurations /app
 
 RUN ls /deploy
 ENV GOOGLE_APPLICATION_CREDENTIALS /var/secrets/google/spark-sa.json
 RUN gcloud config list
+
+COPY gcp/ /root/.config/gcloud
+RUN gcloud config list
+
+
 RUN gcloud auth activate-service-account --key-file=/var/secrets/google/spark-sa.json
 
 RUN gcloud config list
