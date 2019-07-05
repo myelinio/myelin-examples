@@ -1,6 +1,8 @@
 FROM maven AS mavenbuild
 
 #ENV BUCKET_PATH=gs://myelin-development-spark-on-k8s2/jars/
+RUN mkdir -p /var/secrets/google/
+COPY /var/secrets/google/ /var/secrets/google/
 
 WORKDIR /app
 
@@ -11,7 +13,7 @@ RUN mvn clean package
 FROM google/cloud-sdk
 
 #ENV GOOGLE_APPLICATION_CREDENTIALS /var/secrets/google/service_key.json/
-RUN mkdir /var/secrets/google/
+RUN mkdir -p /var/secrets/google/
 COPY /var/secrets/google/ /var/secrets/google/
 RUN ls /var/secrets/google/
 
