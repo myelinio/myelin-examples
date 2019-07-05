@@ -1,2 +1,7 @@
 [auth]
 credential_file_override = /var/secrets/google/spark-sa.json
+
+[core]
+account = spark-bq@myelin-development.iam.gserviceaccount.com
+disable_usage_reporting = True
+project = myelin-development
