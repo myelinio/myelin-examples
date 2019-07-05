@@ -1,0 +1,2 @@
+[auth]
+credential_file_override = /var/secrets/google/service_key.json
