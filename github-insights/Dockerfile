@@ -24,6 +24,9 @@ COPY --from=mavenbuild /app/target/github-insights-1.0-SNAPSHOT-jar-with-depende
 RUN ls /deploy
 ENV GOOGLE_APPLICATION_CREDENTIALS /var/secrets/google/service_key.json
 RUN gcloud config list
+RUN gcloud auth activate-service-account --key-file=/var/secrets/google/service_key.json
+
+RUN gcloud config list
 
 RUN gsutil cp ./github-insights-1.0-SNAPSHOT-jar-with-dependencies.jar gs://myelin-development-spark-on-k8s2/jars/
 
