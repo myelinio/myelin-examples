@@ -1,3 +1,33 @@
+#    gcloud iam service-accounts create spark-bq --display-name spark-bq
+#
+#    export SA_EMAIL=$(gcloud iam service-accounts list --filter="displayName:spark-bq" --format='value(email)')
+#
+#    gcloud projects add-iam-policy-binding $PROJECT --member serviceAccount:$SA_EMAIL --role roles/storage.admin
+#    gcloud projects add-iam-policy-binding $PROJECT --member serviceAccount:$SA_EMAIL --role roles/bigquery.dataOwner
+#    gcloud projects add-iam-policy-binding $PROJECT --member serviceAccount:$SA_EMAIL --role roles/bigquery.jobUser
+#
+#    gcloud iam service-accounts keys create spark-sa.json --iam-account $SA_EMAIL
+#    kubectl create secret generic spark-sa --from-file=spark-sa.json
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spark
+  namespace: myelin
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: spark-role
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+subjects:
+  - kind: ServiceAccount
+    name: spark
+    namespace: myelin
+---
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
