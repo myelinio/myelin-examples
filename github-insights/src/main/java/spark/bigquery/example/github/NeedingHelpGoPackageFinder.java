@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package spark.bigquery.example.github;
 
 import com.google.common.base.Preconditions;
@@ -54,41 +54,41 @@ import scala.Tuple2;
 public class NeedingHelpGoPackageFinder {
 
   private static final String GO_FILES_QUERY_TEMPLATE =
-      "SELECT id\n"
-          + "FROM [bigquery-public-data:github_repos.%s]\n"
-          + "WHERE RIGHT(path, 3) = '.go'";
+          "SELECT id\n"
+                  + "FROM [bigquery-public-data:github_repos.%s]\n"
+                  + "WHERE RIGHT(path, 3) = '.go'";
 
   private static final String GO_FILES_TABLE = "go_files";
 
   private static final String GO_CONTENTS_QUERY_TEMPLATE =
-      "SELECT sample_repo_name as repo_name, content\n"
-          + "FROM [bigquery-public-data:github_repos.%s]\n"
-          + "WHERE id IN (SELECT id FROM %s.%s)";
+          "SELECT sample_repo_name as repo_name, content\n"
+                  + "FROM [bigquery-public-data:github_repos.%s]\n"
+                  + "WHERE id IN (SELECT id FROM %s.%s)";
 
   private static final String POPULAR_PACKAGES_QUERY_TEMPLATE =
-      "SELECT\n"
-          + "  h.repo_name as repo_name,\n"
-          + "  h.package as package,\n"
-          + "  help_count,\n"
-          + "  import_count,\n"
-          + "  ceil(log(help_count*2)*log(import_count*2)) as popularity\n"
-          + "FROM\n"
-          + "  [%s:%s.%s] AS h\n"
-          + "INNER JOIN\n"
-          + "  [%s:%s.%s] AS i\n"
-          + "ON\n"
-          + "  h.repo_name = i.repo_name\n"
-          + "  AND h.package = i.package\n"
-          + "ORDER BY\n"
-          + "  popularity DESC";
+          "SELECT\n"
+                  + "  h.repo_name as repo_name,\n"
+                  + "  h.package as package,\n"
+                  + "  help_count,\n"
+                  + "  import_count,\n"
+                  + "  ceil(log(help_count*2)*log(import_count*2)) as popularity\n"
+                  + "FROM\n"
+                  + "  [%s:%s.%s] AS h\n"
+                  + "INNER JOIN\n"
+                  + "  [%s:%s.%s] AS i\n"
+                  + "ON\n"
+                  + "  h.repo_name = i.repo_name\n"
+                  + "  AND h.package = i.package\n"
+                  + "ORDER BY\n"
+                  + "  popularity DESC";
 
   private static final String GO_PACKAGE_KEYWORD = "package";
 
   private static final Pattern GO_SINGLE_IMPORT_PATTERN = Pattern
-      .compile(".*import\\s+\"(.*)\".*");
+          .compile(".*import\\s+\"(.*)\".*");
 
   private static final Pattern GO_BLOCK_IMPORT_PATTERN = Pattern
-      .compile("(?s).*import\\s+\\(([^)]*)\\).*");
+          .compile("(?s).*import\\s+\\(([^)]*)\\).*");
 
   private static final String GO_PACKAGE_HELPS_TABLE = "go_package_helps";
 
@@ -97,19 +97,19 @@ public class NeedingHelpGoPackageFinder {
   private static final String POPULAR_GO_PACKAGES_TABLE = "popular_go_packages";
 
   private static final StructType GO_PACKAGES_HELPS_TABLE_SCHEMA = new StructType(
-      new StructField[]{
-          new StructField("repo_name", DataTypes.StringType, false, Metadata.empty()),
-          new StructField("package", DataTypes.StringType, false, Metadata.empty()),
-          new StructField("help_count", DataTypes.IntegerType, false, Metadata.empty()),
-      }
+          new StructField[]{
+                  new StructField("repo_name", DataTypes.StringType, false, Metadata.empty()),
+                  new StructField("package", DataTypes.StringType, false, Metadata.empty()),
+                  new StructField("help_count", DataTypes.IntegerType, false, Metadata.empty()),
+          }
   );
 
   private static final StructType GO_PACKAGE_IMPORTS_TABLE_SCHEMA = new StructType(
-      new StructField[]{
-          new StructField("repo_name", DataTypes.StringType, true, Metadata.empty()),
-          new StructField("package", DataTypes.StringType, false, Metadata.empty()),
-          new StructField("import_count", DataTypes.IntegerType, false, Metadata.empty()),
-      }
+          new StructField[]{
+                  new StructField("repo_name", DataTypes.StringType, true, Metadata.empty()),
+                  new StructField("package", DataTypes.StringType, false, Metadata.empty()),
+                  new StructField("import_count", DataTypes.IntegerType, false, Metadata.empty()),
+          }
   );
 
   private final String projectId;
@@ -121,16 +121,16 @@ public class NeedingHelpGoPackageFinder {
   private final boolean useSampleTables;
 
   private NeedingHelpGoPackageFinder(
-      String projectId,
-      String bigQueryDataset,
-      String gcsBucket,
-      boolean useSampleTables) {
+          String projectId,
+          String bigQueryDataset,
+          String gcsBucket,
+          boolean useSampleTables) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(projectId),
-        "GCP project ID must not be empty");
+            "GCP project ID must not be empty");
     Preconditions.checkArgument(!Strings.isNullOrEmpty(bigQueryDataset),
-        "BigQuery dataset name must not be empty");
+            "BigQuery dataset name must not be empty");
     Preconditions.checkArgument(!Strings.isNullOrEmpty(gcsBucket),
-        "GCS bucket must not be empty");
+            "GCS bucket must not be empty");
 
     this.projectId = projectId;
     this.bigQueryDataset = bigQueryDataset;
@@ -152,9 +152,9 @@ public class NeedingHelpGoPackageFinder {
 
     if (args.length != 3) {
       System.err.println("Usage: NeedingHelpGoPackageFinder "
-          + "<GCP project ID for billing> "
-          + "<BigQuery dataset for output tables> "
-          + "<GCS bucket used by BigQuery for temporary data>");
+              + "<GCP project ID for billing> "
+              + "<BigQuery dataset for output tables> "
+              + "<GCS bucket used by BigQuery for temporary data>");
       System.exit(1);
     }
 
@@ -162,28 +162,28 @@ public class NeedingHelpGoPackageFinder {
     String bigQueryDataset = args[1];
     String gcsBucket = args[2];
     NeedingHelpGoPackageFinder finder = new NeedingHelpGoPackageFinder(projectId, bigQueryDataset,
-        gcsBucket, cmd.hasOption("usesample"));
+            gcsBucket, cmd.hasOption("usesample"));
     finder.run();
   }
 
   private void run() {
     String goFilesTableId = String
-        .format("%s:%s.%s", this.projectId, this.bigQueryDataset, GO_FILES_TABLE);
+            .format("%s:%s.%s", this.projectId, this.bigQueryDataset, GO_FILES_TABLE);
     selectAndOutputGoFilesTable(goFilesTableId);
 
     Dataset<Row> goContentsDataset = queryAndCacheGoContents();
 
     String goPackageHelpsTableId = String
-        .format("%s:%s.%s", this.projectId, this.bigQueryDataset, GO_PACKAGE_HELPS_TABLE);
+            .format("%s:%s.%s", this.projectId, this.bigQueryDataset, GO_PACKAGE_HELPS_TABLE);
     outputGoPackageHelpsTable(getNeedHelpPackages(goContentsDataset),
-        goPackageHelpsTableId);
+            goPackageHelpsTableId);
 
     String goPackageImportsTableId = String
-        .format("%s:%s.%s", this.projectId, this.bigQueryDataset, GO_PACKAGE_IMPORTS_TABLE);
+            .format("%s:%s.%s", this.projectId, this.bigQueryDataset, GO_PACKAGE_IMPORTS_TABLE);
     outputGoPackageImportsTable(getImportedPackages(goContentsDataset), goPackageImportsTableId);
 
     String popularGoPackagesTableId = String
-        .format("%s:%s.%s", this.projectId, this.bigQueryDataset, POPULAR_GO_PACKAGES_TABLE);
+            .format("%s:%s.%s", this.projectId, this.bigQueryDataset, POPULAR_GO_PACKAGES_TABLE);
     queryAndOutputPopularPackagesTable(popularGoPackagesTableId);
   }
 
@@ -193,10 +193,10 @@ public class NeedingHelpGoPackageFinder {
    */
   private void selectAndOutputGoFilesTable(String outputTableId) {
     Dataset<Row> dataset = this.bigQuerySQLContext.bigQuerySelect(
-        String.format(GO_FILES_QUERY_TEMPLATE, this.useSampleTables ? "sample_files" : "files"));
+            String.format(GO_FILES_QUERY_TEMPLATE, this.useSampleTables ? "sample_files" : "files"));
     BigQueryDataFrame bigQueryDataFrame = new BigQueryDataFrame(dataset);
-    bigQueryDataFrame.saveAsBigQueryTable(outputTableId, CreateDisposition.CREATE_IF_NEEDED(),
-        WriteDisposition.WRITE_EMPTY());
+    bigQueryDataFrame.saveAsBigQueryTable(outputTableId, null,
+            null);
   }
 
   /**
@@ -206,21 +206,21 @@ public class NeedingHelpGoPackageFinder {
    */
   private Dataset<Row> queryAndCacheGoContents() {
     Dataset<Row> dataset = this.bigQuerySQLContext
-        .bigQuerySelect(
-            String.format(
-              GO_CONTENTS_QUERY_TEMPLATE,
-              this.useSampleTables ? "sample_contents" : "contents",
-              this.bigQueryDataset,
-              GO_FILES_TABLE));
+            .bigQuerySelect(
+                    String.format(
+                            GO_CONTENTS_QUERY_TEMPLATE,
+                            this.useSampleTables ? "sample_contents" : "contents",
+                            this.bigQueryDataset,
+                            GO_FILES_TABLE));
     return dataset.persist(StorageLevel.MEMORY_AND_DISK());
   }
 
   private static JavaPairRDD<String, String> getContentsByRepoNames(
-      Dataset<Row> goContentsDataset) {
+          Dataset<Row> goContentsDataset) {
     return goContentsDataset.select("repo_name", "content")
-        .javaRDD()
-        .mapToPair(row -> new Tuple2<>(row.getString(0), row.getString(1)))
-        .filter(tuple -> tuple._2() != null);
+            .javaRDD()
+            .mapToPair(row -> new Tuple2<>(row.getString(0), row.getString(1)))
+            .filter(tuple -> tuple._2() != null);
   }
 
   /**
@@ -228,14 +228,14 @@ public class NeedingHelpGoPackageFinder {
    * repository/package combination to the given BigQuery table.
    */
   private void outputGoPackageHelpsTable(
-      JavaPairRDD<Tuple2<String, String>, Integer> packagesNeedingHelp, String outputTableId) {
+          JavaPairRDD<Tuple2<String, String>, Integer> packagesNeedingHelp, String outputTableId) {
     Dataset<Row> dataset = this.sqlContext.createDataFrame(packagesNeedingHelp
-            .map(tuple -> RowFactory.create(tuple._1()._1(), tuple._1()._2(), tuple._2()))
-            .rdd(),
-        GO_PACKAGES_HELPS_TABLE_SCHEMA);
+                    .map(tuple -> RowFactory.create(tuple._1()._1(), tuple._1()._2(), tuple._2()))
+                    .rdd(),
+            GO_PACKAGES_HELPS_TABLE_SCHEMA);
     BigQueryDataFrame bigQueryDataFrame = new BigQueryDataFrame(dataset);
-    bigQueryDataFrame.saveAsBigQueryTable(outputTableId, CreateDisposition.CREATE_IF_NEEDED(),
-        WriteDisposition.WRITE_EMPTY());
+    bigQueryDataFrame.saveAsBigQueryTable(outputTableId, null,
+            null);
   }
 
   /**
@@ -243,16 +243,16 @@ public class NeedingHelpGoPackageFinder {
    * repositories to the given BigQuery table.
    */
   private void outputGoPackageImportsTable(
-      JavaPairRDD<Tuple2<String, String>, Integer> packageImports, String outputTableId) {
+          JavaPairRDD<Tuple2<String, String>, Integer> packageImports, String outputTableId) {
     Dataset<Row> dataset = this.sqlContext.createDataFrame(
-        packageImports
-            .map(tuple -> RowFactory.create(tuple._1()._1(), tuple._1()._2(), tuple._2()))
-            .rdd(),
-        GO_PACKAGE_IMPORTS_TABLE_SCHEMA);
+            packageImports
+                    .map(tuple -> RowFactory.create(tuple._1()._1(), tuple._1()._2(), tuple._2()))
+                    .rdd(),
+            GO_PACKAGE_IMPORTS_TABLE_SCHEMA);
     BigQueryDataFrame bigQueryDataFrame = new BigQueryDataFrame(dataset);
     bigQueryDataFrame
-        .saveAsBigQueryTable(outputTableId, CreateDisposition.CREATE_IF_NEEDED(),
-            WriteDisposition.WRITE_EMPTY());
+            .saveAsBigQueryTable(outputTableId, null,
+                    null);
   }
 
   /**
@@ -261,14 +261,14 @@ public class NeedingHelpGoPackageFinder {
    */
   private void queryAndOutputPopularPackagesTable(String outputTableId) {
     Dataset<Row> dataset = this.bigQuerySQLContext
-        .bigQuerySelect(String
-            .format(POPULAR_PACKAGES_QUERY_TEMPLATE,
-                this.projectId, this.bigQueryDataset, GO_PACKAGE_HELPS_TABLE,
-                this.projectId, this.bigQueryDataset, GO_PACKAGE_IMPORTS_TABLE));
+            .bigQuerySelect(String
+                    .format(POPULAR_PACKAGES_QUERY_TEMPLATE,
+                            this.projectId, this.bigQueryDataset, GO_PACKAGE_HELPS_TABLE,
+                            this.projectId, this.bigQueryDataset, GO_PACKAGE_IMPORTS_TABLE));
     BigQueryDataFrame bigQueryDataFrame = new BigQueryDataFrame(dataset);
     bigQueryDataFrame
-        .saveAsBigQueryTable(outputTableId, CreateDisposition.CREATE_IF_NEEDED(),
-            WriteDisposition.WRITE_EMPTY());
+            .saveAsBigQueryTable(outputTableId, null,
+                    null);
   }
 
   /**
@@ -277,17 +277,17 @@ public class NeedingHelpGoPackageFinder {
    * combination needs help. The result is sorted in descending order by the counts.
    */
   private static JavaPairRDD<Tuple2<String, String>, Integer> getNeedHelpPackages(
-      Dataset<Row> goContentsDataset) {
+          Dataset<Row> goContentsDataset) {
     return getContentsByRepoNames(goContentsDataset)
-        .filter(tuple -> tuple._2().contains("TODO") || tuple._2().contains("FIXME"))
-        .flatMapValues(content -> Splitter.on('\n').omitEmptyStrings().trimResults().split(content))
-        .filter(tuple -> tuple._2().startsWith(GO_PACKAGE_KEYWORD))
-        .mapValues(line -> line.substring(GO_PACKAGE_KEYWORD.length() + 1))
-        .mapToPair(tuple -> new Tuple2<>(new Tuple2<>(tuple._1(), tuple._2()), 1))
-        .reduceByKey((left, right) -> left + right)
-        .mapToPair(Tuple2::swap)
-        .sortByKey(false)
-        .mapToPair(Tuple2::swap);
+            .filter(tuple -> tuple._2().contains("TODO") || tuple._2().contains("FIXME"))
+            .flatMapValues(content -> Splitter.on('\n').omitEmptyStrings().trimResults().split(content))
+            .filter(tuple -> tuple._2().startsWith(GO_PACKAGE_KEYWORD))
+            .mapValues(line -> line.substring(GO_PACKAGE_KEYWORD.length() + 1))
+            .mapToPair(tuple -> new Tuple2<>(new Tuple2<>(tuple._1(), tuple._2()), 1))
+            .reduceByKey((left, right) -> left + right)
+            .mapToPair(Tuple2::swap)
+            .sortByKey(false)
+            .mapToPair(Tuple2::swap);
   }
 
   /**
@@ -297,18 +297,18 @@ public class NeedingHelpGoPackageFinder {
    * counts.
    */
   private static JavaPairRDD<Tuple2<String, String>, Integer> getImportedPackages(
-      Dataset<Row> goContentsDataset) {
+          Dataset<Row> goContentsDataset) {
     return getContentsByRepoNames(goContentsDataset)
-        .map(tuple -> getImportedPackages(tuple._2()))
-        .flatMap(
-            importPaths -> Splitter.on('\n').omitEmptyStrings().trimResults().split(importPaths)
-                .iterator())
-        .filter(path -> !path.startsWith("//")) // Ignore comments.
-        .mapToPair(path -> new Tuple2<>(getRepoNameAndPackage(path), 1))
-        .reduceByKey((left, right) -> left + right)
-        .mapToPair(Tuple2::swap)
-        .sortByKey(false)
-        .mapToPair(Tuple2::swap);
+            .map(tuple -> getImportedPackages(tuple._2()))
+            .flatMap(
+                    importPaths -> Splitter.on('\n').omitEmptyStrings().trimResults().split(importPaths)
+                            .iterator())
+            .filter(path -> !path.startsWith("//")) // Ignore comments.
+            .mapToPair(path -> new Tuple2<>(getRepoNameAndPackage(path), 1))
+            .reduceByKey((left, right) -> left + right)
+            .mapToPair(Tuple2::swap)
+            .sortByKey(false)
+            .mapToPair(Tuple2::swap);
   }
 
   private static String getImportedPackages(String importContent) {
