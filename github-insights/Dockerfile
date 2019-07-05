@@ -11,7 +11,8 @@ RUN mvn clean package
 FROM google/cloud-sdk
 
 #ENV GOOGLE_APPLICATION_CREDENTIALS /var/secrets/google/service_key.json/
-#COPY ./spark-sa.json /var/secrets/google/service_key.json
+COPY /var/secrets/google/ /var/secrets/google/
+
 RUN ls /var/secrets/google/
 
 WORKDIR /deploy
