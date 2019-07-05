@@ -22,6 +22,6 @@ COPY --from=mavenbuild /app/target/github-insights-1.0-SNAPSHOT-jar-with-depende
 COPY copyArtifact.sh /copyArtifact.sh
 
 RUN chmod +x /copyArtifact.sh
-RUN sh -c /copyArtifact.sh
+RUN /copyArtifact.sh
 
 FROM docker.io/myelinio/spark-client:v2.3.0
