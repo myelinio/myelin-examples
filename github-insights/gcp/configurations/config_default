@@ -1,2 +1,0 @@
-[auth]
-credential_file_override = /var/secrets/google/spark-sa.json
