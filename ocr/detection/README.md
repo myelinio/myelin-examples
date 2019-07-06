@@ -19,6 +19,7 @@ https://github.com/handong1587/handong1587.github.io/blob/master/_posts/deep_lea
 
 - Object Proposals for Text Extraction in the Wild
     - github: https://github.com/lluisgomez/TextProposals
+    - evaluation module
 
 - Synthetic Data for Text Localisation in Natural Images
     - Synthetic Data for Text Localisation in Natural Images
@@ -28,13 +29,15 @@ https://github.com/handong1587/handong1587.github.io/blob/master/_posts/deep_lea
 
 - TextBoxes: A Fast Text Detector with a Single Deep Neural Network
     - github: https://github.com/xiaodiu2010/TextBoxes-TensorFlow
+    - not found
 
 - TextBoxes++: A Single-Shot Oriented Scene Text Detector
     - github(official, Caffe): https://github.com/MhLiao/TextBoxes_plusplus
+    - trained on SynthText and ICDAR 2015 
 
 - Arbitrary-Oriented Scene Text Detection via Rotation Proposals
     - github: https://github.com/DetectionTeamUCAS/RRPN_Faster-RCNN_Tensorflow
-    - github: https://github.com/DetectionTeamUCAS/RRPN_Faster-RCNN_Tensorflow
+    - github: trained on 
 
 - Detecting Oriented Text in Natural Images by Linking Segments
     - github(Tensorflow): https://github.com/dengdan/seglink
@@ -62,6 +65,9 @@ https://github.com/handong1587/handong1587.github.io/blob/master/_posts/deep_lea
 
 - Tightness-aware Evaluation Protocol for Scene Text Detection
     - github: https://github.com/Yuliang-Liu/TIoU-metric
+
+- TextSnake: A Flexible Representation for Detecting Text of Arbitrary Shapes
+    - github: https://github.com/princewang1994/TextSnake.pytorch
 
 
 # Text Recognition

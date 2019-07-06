@@ -1,0 +1,246 @@
+apiVersion: myelinproj.io/v1alpha1
+kind: Axon
+metadata:
+  name: model-graph
+spec:
+
+  serviceAccountName: myelin-app-myelin
+
+  artifacts:
+    - name: rec-source
+      path: /src
+      git:
+        repo: https://github.com/myelinio/myelin-examples.git
+        revision: master
+
+  volumeClaimTemplate:
+    metadata:
+      name: axon-store
+    spec:
+      storageClassName: standard
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
+  tasks:
+
+    # Model1
+    - name: DataPrepModel1
+      container:
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/model-graph-model1-preprocess:1.0.1-67-g25b4509
+#        imageBuild:
+#          repositoryName: model-graph-model1-preprocess
+#          artifact: rec-source
+#          buildLocation: /src/test_demo_dag/model1
+#          dockerfile:
+#            path: Dockerfile.preprocess
+
+    - name: TrainModel1
+      train:
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/model-graph-model1-train:1.0.1-67-g25b4509
+#        imageBuild:
+#          repositoryName: model-graph-model1-train
+#          artifact: rec-source
+#          buildLocation: /src/test_demo_dag/model1
+#          dockerfile:
+#            path: Dockerfile.train
+
+    - name: DeployModel1
+      deploy:
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/model-graph-model1-deploy:1.0.1-67-g25b4509
+#        imageBuild:
+#          repositoryName: model-graph-model1-deploy
+#          artifact: rec-source
+#          buildLocation: /src/
+#          s2i:
+#            contextDir: test_demo_dag/model1
+#            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
+        endpointType: REST
+        endpointRestType: Multipart
+
+    # Model2
+    - name: DataPrepModel2
+      container:
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/model-graph-model2-preprocess:1.0.1-67-g25b4509
+#        imageBuild:
+#          repositoryName: model-graph-model2-preprocess
+#          artifact: rec-source
+#          buildLocation: /src/test_demo_dag/model2
+#          dockerfile:
+#            path: Dockerfile.preprocess
+
+    - name: TrainModel2
+      train:
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/model-graph-model2-train:1.0.1-67-g25b4509
+#        imageBuild:
+#          repositoryName: model-graph-model2-train
+#          artifact: rec-source
+#          buildLocation: /src/test_demo_dag/model2
+#          dockerfile:
+#            path: Dockerfile.train
+
+    - name: DeployModel2
+      deploy:
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/model-graph-model2-deploy:1.0.1-67-g25b4509
+#        imageBuild:
+#          repositoryName: model-graph-model2-deploy
+#          artifact: rec-source
+#          buildLocation: /src/
+#          s2i:
+#            contextDir: test_demo_dag/model2
+#            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
+        endpointType: REST
+        endpointRestType: Multipart
+
+    # Model3
+    - name: DataPrepModel3
+      container:
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/model-graph-model3-preprocess:1.0.1-67-g25b4509
+#        imageBuild:
+#          repositoryName: model-graph-model3-preprocess
+#          artifact: rec-source
+#          buildLocation: /src/test_demo_dag/model3
+#          dockerfile:
+#            path: Dockerfile.preprocess
+
+    - name: TrainModel3
+      train:
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/model-graph-model3-train:1.0.1-67-g25b4509
+#        imageBuild:
+#          repositoryName: model-graph-model3-train
+#          artifact: rec-source
+#          buildLocation: /src/test_demo_dag/model3
+#          dockerfile:
+#            path: Dockerfile.train
+
+
+    - name: DeployModel3
+      deploy:
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/model-graph-model3-deploy:1.0.1-73-g1233aea
+        imageBuild:
+          repositoryName: model-graph-model3-deploy
+          artifact: rec-source
+          buildLocation: /src/test_demo_dag/model3
+          dockerfile:
+            path: Dockerfile.deploy
+        endpointType: REST
+        endpointRestType: Multipart
+
+
+  sensors:
+
+    - name: TrainOnRest1
+      triggers:
+        - name: RestTrigger1
+          type: Rest
+
+      tasks:
+        - resourceExecutor:
+            task: DataPrepModel1
+        - trainer:
+            task: TrainModel1
+
+    - name: TrainOnRest2
+      triggers:
+        - name: RestTrigger2
+          type: Rest
+
+      tasks:
+        - resourceExecutor:
+            task: DataPrepModel2
+        - trainer:
+            task: TrainModel2
+
+    - name: TrainOnRest3
+      triggers:
+        - name: RestTrigger3
+          type: Rest
+
+      tasks:
+        - resourceExecutor:
+            task: DataPrepModel3
+        - trainer:
+            task: TrainModel3
+
+    - name: Deployment123DecisionMaker
+      triggers:
+        - name: TestTrainingComplete1
+          type: Lifecycle
+          condition: Succeeded
+          task: TrainModel1
+        - name: TestTrainingComplete2
+          type: Lifecycle
+          condition: Succeeded
+          task: TrainModel2
+        - name: TestTrainingComplete3
+          type: Lifecycle
+          condition: Succeeded
+          task: TrainModel3
+      tasks:
+        - deployer:
+            name: graph-deployer
+            rolloutSpec:
+              - destinations:
+                  - destinationIndex: 0
+                    weight: 100
+            replicas: 1
+            models:
+              - name: DeployModel1
+                modelSelectionStrategy: "best"
+                routingStrategy:
+                  - destinations:
+                      - destinationName: model1
+                        weight: 100
+                backendModels:
+                  - name: model1
+                    trainer: TrainModel1
+                    deployer: DeployModel1
+                    modelSelectionStrategy: "best"
+              - name: DeployModel2
+                modelSelectionStrategy: "best"
+                routingStrategy:
+                  - destinations:
+                      - destinationName: model2
+                        weight: 100
+                backendModels:
+                  - name: model2
+                    trainer: TrainModel2
+                    deployer: DeployModel2
+                    modelSelectionStrategy: "best"
+              - name: DeployModel3
+                modelSelectionStrategy: "best"
+                routingStrategy:
+                  - destinations:
+                      - destinationName: model3
+                        weight: 100
+                backendModels:
+                  - name: model3
+                    trainer: TrainModel3
+                    deployer: DeployModel3
+                    modelSelectionStrategy: "best"
+            routes:
+              - path: /predict1
+                dag:
+                  - model: DeployModel1
+                    path: /predict
+              - path: /predict2
+                dag:
+                  - model: DeployModel2
+                    path: /predict
+              - path: /predict
+                dag:
+                  - model: DeployModel3
+                    path: /predict
+                    dependency: /predict
+                    includeInput: true
+                    dependencies:
+                      - DeployModel1
+                      - DeployModel2
+                  - model: DeployModel1
+                    path: /predict
+                  - model: DeployModel2
+                    path: /predict
+              - path: /send-feedback
+                dag:
+                  - model: DeployModel1
+                    path: /send-feedback

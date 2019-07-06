@@ -54,7 +54,7 @@ spec:
           buildLocation: /src/
           s2i:
             contextDir: recommender_rf_demo
-            buiderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
 
   sensors:
 
@@ -88,10 +88,10 @@ spec:
                 modelSelectionStrategy: "best"
                 routingStrategy:
                   - destinations:
-                      - destinationName: BackendRecommender
+                      - destinationName: backend-recommender
                         weight: 100
                 backendModels:
-                  - name: BackendRecommender
+                  - name: backend-recommender
                     trainer: TrainMyelinRecommender
                     deployer: DeployMyelinRecommender
                     modelSelectionStrategy: "best"
