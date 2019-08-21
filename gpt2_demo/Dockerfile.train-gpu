@@ -1,0 +1,17 @@
+FROM tensorflow/tensorflow:latest-gpu-py3
+
+RUN pip3 install --upgrade pip
+
+RUN apt-get update && apt-get install -y libopenblas-dev
+
+COPY requirements.train-gpu.txt requirements.txt
+RUN pip install -r  requirements.txt
+
+WORKDIR /work
+
+RUN mkdir /work/gpt2/
+
+COPY src /work/gpt2_demo/src
+COPY train.py /work/gpt2_demo/train.py
+
+CMD python -m gpt2_demo.train

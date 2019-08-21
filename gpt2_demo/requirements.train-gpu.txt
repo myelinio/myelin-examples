@@ -1,0 +1,4 @@
+toposort==1.5
+regex==2019.04.14
+numpy==1.16.0
+tqdm==4.29.1
