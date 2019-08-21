@@ -9,7 +9,7 @@ RUN pip install -r  requirements.txt
 
 WORKDIR /work
 
-RUN mkdir /work/recommender_demo/
+RUN mkdir /work/gpt2/
 
 COPY src /work/gpt2_demo/src
 COPY train.py /work/gpt2_demo/train.py

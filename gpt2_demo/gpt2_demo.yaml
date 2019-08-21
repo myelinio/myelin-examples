@@ -102,15 +102,3 @@ spec:
                 dag:
                   - model: MyelinGPT2
                     path: /send-feedback
-
-
-    - name: PostDeploymentDecisionMaker
-      triggers:
-        - name: DeployAccuracy
-          type: Alert
-          condition: "{{shakespeare_gpt2_deploy_accuracy}} < 0.90"
-      tasks:
-        - resourceExecutor:
-            task: DataPrepGPT2
-        - trainer:
-            task: TrainGPT2
