@@ -77,12 +77,12 @@ def detect():
     request.files['image'].save(bio)
     img = cv2.imdecode(np.frombuffer(bio.getvalue(), dtype='uint8'), 1)
     session_id = str(uuid.uuid1())
-    prediction = detect_text(img, 'http://localhost:5000/predict')
-    imageio.imwrite("%s/%s_output_predict.jpg" % (save_dir, session_id), prediction['img_drawed'])
+    # prediction = detect_text(img, 'http://localhost:5000/predict')
+    # imageio.imwrite("%s/%s_output_predict.jpg" % (save_dir, session_id), prediction['img_drawed'])
 
     response = [{
         'title': session_id,
-        'source': "http://0.0.0.0:8769/%s/%s_output_predict.jpg" % (save_dir, session_id),
+        'source': "http://0.0.0.0:8769/static/results/87e7a9e2-6835-11e9-9b8d-f2189885e34b_output_predict.jpg",
     }]
 
     return jsonify(response)
