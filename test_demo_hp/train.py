@@ -3,10 +3,10 @@ from sklearn.svm import SVR
 import pandas as pd
 import pickle
 import requests
-from myelin.metric import MetricClient
 import logging
 import argparse
 from sklearn.metrics import mean_squared_error
+import myelin
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -43,12 +43,7 @@ class DemoHPWorker():
         rmse = mean_squared_error(Y, y_pred)
         print("rmse: %s" % rmse)
 
-        info_map = {'train rmse': rmse}
-
-        metric_client = MetricClient()
-        metric_client.post_update("rmse", rmse)
-        metric_client.post_result(config_id, config, budget, rmse, info_map)
-
+        myelin.hpo.publish_result(rmse, "rmse")
 
 def main():
     parser = argparse.ArgumentParser(description='Training')
