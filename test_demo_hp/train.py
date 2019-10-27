@@ -6,7 +6,7 @@ import requests
 import logging
 import argparse
 from sklearn.metrics import mean_squared_error
-import myelin
+import myelin.hpo
 
 logging.basicConfig(level=logging.DEBUG)
 
