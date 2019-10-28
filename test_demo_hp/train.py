@@ -31,11 +31,12 @@ class DemoHPWorker():
 
     def compute(self, config_id, kernel, C, epsilon, budget):
         config = myelin.hpo.get_hpo_params()
+        print("Config: %s" % config)
+
         assert config['kernel'] == kernel
         assert config['C'] == C
         assert config['epsilon'] == epsilon
         assert config['budget'] == budget
-        print("Config: %s" % config)
 
         data_path = os.environ.get('DATA_PATH') or '/tmp/data/'
         model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
