@@ -2,36 +2,38 @@ import os
 from sklearn.svm import SVR
 import pandas as pd
 import pickle
-import requests
 import logging
 import argparse
 from sklearn.metrics import mean_squared_error
-os.environ["NAMESPACE"] = "test_ns"
-os.environ["MYELIN_NAMESPACE"] = "test_ns"
-os.environ["PUSHGATEWAY_URL"] = "push-gateway-url"
-os.environ["TASK_ID"] = "task_id"
-os.environ["AXON_NAME"] = "axon-name"
-import json
-hpo_env = {"C": 1.3252399238786257,
-           "epsilon": 9.62459260690932,
-           "kernel": "rbf",
-           "config-id": "0_0_1",
-           "budget": 10,
-           "task-id": "trainonstart-1111625823-1-0_1-1",
-           "model-path": "/var/lib/myelin/model/ml-test-hp/trainonstart-1111625823-1-0/trainonstart-1111625823-1-0_1-1",
-           "data-path": "/var/lib/myelin/data/ml-test-hp/trainonstart-1111625823-0-0/",
-           "hpo-conf": "{\"C\": 1.3252399238786257, \"epsilon\": 9.62459260690932, \"kernel\": \"rbf\", \"config-id\": \"0_0_1\", \"budget\": 10}"}
-os.environ['HPO_PARAMS'] = json.dumps(hpo_env)
+
+# os.environ["NAMESPACE"] = "test_ns"
+# os.environ["MYELIN_NAMESPACE"] = "test_ns"
+# os.environ["PUSHGATEWAY_URL"] = "push-gateway-url"
+# os.environ["TASK_ID"] = "task_id"
+# os.environ["AXON_NAME"] = "axon-name"
+# import json
+# hpo_env = {"C": 1.3252399238786257,
+#            "epsilon": 9.62459260690932,
+#            "kernel": "rbf",
+#            "config-id": "0_0_1",
+#            "budget": 10,
+#            "task-id": "trainonstart-1111625823-1-0_1-1",
+#            "model-path": "/var/lib/myelin/model/ml-test-hp/trainonstart-1111625823-1-0/trainonstart-1111625823-1-0_1-1",
+#            "data-path": "/var/lib/myelin/data/ml-test-hp/trainonstart-1111625823-0-0/",
+#            "hpo-conf": "{\"C\": 1.3252399238786257, \"epsilon\": 9.62459260690932, \"kernel\": \"rbf\", \"config-id\": \"0_0_1\", \"budget\": 10}"}
+# os.environ['HPO_PARAMS'] = json.dumps(hpo_env)
+
 import myelin.hpo
 
 logging.basicConfig(level=logging.DEBUG)
 
 
-class DemoHPWorker():
+class DemoHPWorker(object):
 
     def compute(self, config_id, kernel, C, epsilon, budget):
         config = myelin.hpo.get_hpo_params()
         print("Config: %s" % config)
+        print("config_id: %s, kernel: %s, C: %s,  epsilon: %s, budget: %s" % (config_id, kernel, C, epsilon, budget))
 
         assert config['kernel'] == kernel
         assert config['C'] == C
@@ -60,6 +62,7 @@ class DemoHPWorker():
         print("rmse: %s" % rmse)
 
         myelin.hpo.publish_result(rmse, "rmse")
+
 
 def main():
     # --config_id=0_0_1 --kernel= --C=1.3252399238786257 --epsilon=9.62459260690932 --budget=10
