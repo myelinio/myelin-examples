@@ -6,24 +6,40 @@ import logging
 import argparse
 from sklearn.metrics import mean_squared_error
 
-# os.environ["NAMESPACE"] = "test_ns"
-# os.environ["MYELIN_NAMESPACE"] = "test_ns"
-# os.environ["PUSHGATEWAY_URL"] = "push-gateway-url"
-# os.environ["TASK_ID"] = "task_id"
-# os.environ["AXON_NAME"] = "axon-name"
-# import json
-# hpo_env = {"C": 1.3252399238786257,
-#            "epsilon": 9.62459260690932,
-#            "kernel": "rbf",
-#            "config-id": "0_0_1",
-#            "budget": 10,
-#            "task-id": "trainonstart-1111625823-1-0_1-1",
-#            "model-path": "/var/lib/myelin/model/ml-test-hp/trainonstart-1111625823-1-0/trainonstart-1111625823-1-0_1-1",
-#            "data-path": "/var/lib/myelin/data/ml-test-hp/trainonstart-1111625823-0-0/",
-#            "hpo-conf": "{\"C\": 1.3252399238786257, \"epsilon\": 9.62459260690932, \"kernel\": \"rbf\", \"config-id\": \"0_0_1\", \"budget\": 10}"}
-# os.environ['HPO_PARAMS'] = json.dumps(hpo_env)
+
+# export NAMESPACE=test_ns
+# export MYELIN_NAMESPACE=test_ns
+# export PUSHGATEWAY_URL=push-gateway-url
+# export TASK_ID=task_id
+# export AXON_NAME=axon_name
+
+
+# NAMESPACE=test_ns
+# MYELIN_NAMESPACE=test_ns
+# PUSHGATEWAY_URL=push-gateway-url
+# TASK_ID=task_id
+# AXON_NAME=axon_name
+
+import os
+os.environ["NAMESPACE"] = "test_ns"
+os.environ["MYELIN_NAMESPACE"] = "test_ns"
+os.environ["PUSHGATEWAY_URL"] = "push-gateway-url"
+os.environ["TASK_ID"] = "task_id"
+os.environ["AXON_NAME"] = "axon_name"
+import json
+hpo_env = {"C": 1.3252399238786257,
+           "epsilon": 9.62459260690932,
+           "kernel": "rbf",
+           "config-id": "0_0_1",
+           "budget": 10,
+           "task-id": "trainonstart-1111625823-1-0_1-1",
+           "model-path": "/var/lib/myelin/model/ml-test-hp/trainonstart-1111625823-1-0/trainonstart-1111625823-1-0_1-1",
+           "data-path": "/var/lib/myelin/data/ml-test-hp/trainonstart-1111625823-0-0/",
+           "hpo-conf": "{\"C\": 1.3252399238786257, \"epsilon\": 9.62459260690932, \"kernel\": \"rbf\", \"config-id\": \"0_0_1\", \"budget\": 10}"}
+os.environ['HPO_PARAMS'] = json.dumps(hpo_env)
 
 import myelin.hpo
+import myelin.metric
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -60,7 +76,7 @@ class DemoHPWorker(object):
         rmse = mean_squared_error(Y, y_pred)
         print("rmse: %s" % rmse)
 
-        myelin.hpo.publish_result(rmse, "rmse")
+        myelin.metric.publish_result(rmse, "rmse")
 
 
 def main():
