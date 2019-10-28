@@ -38,7 +38,6 @@ class DemoHPWorker(object):
         assert config['kernel'] == kernel
         assert config['C'] == C
         assert config['epsilon'] == epsilon
-        assert config['budget'] == budget
 
         data_path = os.environ.get('DATA_PATH') or '/tmp/data/'
         model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
