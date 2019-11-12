@@ -10,7 +10,6 @@ model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
 prep_task = myelin.admin.task(task_name="DataPrepTest")
 print(prep_task)
 assert prep_task.data_path == data_path
-assert prep_task.model_path == model_path
 
 
 if not os.path.exists(model_path):

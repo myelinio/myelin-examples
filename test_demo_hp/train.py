@@ -62,7 +62,6 @@ class DemoHPWorker(object):
         prep_task = myelin.admin.task(task_name="DataPrepTestHP")
         print(prep_task)
         assert prep_task.data_path == data_path
-        assert prep_task.model_path == model_path
 
         if not os.path.exists(model_path):
             os.makedirs(model_path)
