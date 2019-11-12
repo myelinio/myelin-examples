@@ -40,6 +40,7 @@ from sklearn.metrics import mean_squared_error
 
 import myelin.hpo
 import myelin.metric
+import myelin.admin
 
 logging.basicConfig(level=logging.DEBUG)
 
