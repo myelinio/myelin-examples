@@ -8,7 +8,7 @@ model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
 class DeployModel(object):
 
 	def __init__(self):
-		self.model = pickle.load(open(model_path + "sk.pkl", 'rb'))
+		self.model = pickle.load(open(os.path.join(model_path, 'sk.pkl'), 'rb'))
 		self.c = metric.MetricClient()
 
 	def predict(self, X, feature_names):

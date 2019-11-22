@@ -94,7 +94,7 @@ spec:
           artifact: rec-source
           buildLocation: /src/
           s2i:
-            contextDir: xgboost_mnist
+            contextDir: xgboost_hpo_mnist
             builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
 
         endpointType: REST
