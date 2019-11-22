@@ -5,6 +5,7 @@ from sklearn import datasets, metrics
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.utils import shuffle
 from myelin.metric import MetricClient
+import myelin.metric
 
 import logging
 import os
@@ -70,14 +71,7 @@ class GradientBoostingWorker:
         print("*" * 50)
         test_accuracy = metrics.accuracy_score(y_test, predicted)
 
-        info_map = ({
-            'loss': 1 - test_accuracy,
-            'info': {'test accuracy': test_accuracy}
-        })
-
-        metric_client = MetricClient()
-        metric_client.post_update("accuracy", test_accuracy)
-        metric_client.post_result(config_id, config, budget, test_accuracy, info_map)
+        myelin.metric.publish_result(test_accuracy, "accuracy")
 
         model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
         if not os.path.exists(model_path):

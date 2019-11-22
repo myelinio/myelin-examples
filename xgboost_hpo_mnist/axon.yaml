@@ -1,0 +1,149 @@
+apiVersion: myelinproj.io/v1alpha1
+kind: Axon
+metadata:
+  name: xgboost_mnist
+spec:
+
+  serviceAccountName: myelin-app-myelin
+
+  artifacts:
+    - name: rec-source
+      path: /src
+      git:
+        repo: git@github.com:myelinio/myelin-examples.git
+        revision: master
+        sshPrivateKeySecret:
+          name: github-creds
+          key: ssh-private-key
+
+  volumeClaimTemplate:
+    metadata:
+      name: axon-store
+    spec:
+      storageClassName: nfs
+      accessModes: ["ReadWriteMany"]
+      resources:
+        requests:
+          storage: 1Gi
+
+  tasks:
+
+    - name: TrainGBT
+      train:
+        imageBuild:
+          repositoryName: train-myelin-test-hp
+          artifact: rec-source
+          buildLocation: /src/xgboost_hpo_mnist
+          dockerfile:
+            path: Dockerfile
+        lossMetric: "accuracy"
+        hpTuning:
+          concurrency: 2
+          minBudget: 3
+          maxBudget: 10
+          numIteration: 2
+          optimiser: HyperBand
+          params:
+            - type: Categorical
+              name: criterion
+              categorical:
+                values:
+                  - friedman_mse
+                  - mse
+                  - mae
+            - type: UniformFloat
+              name: learning_rate
+              numerical:
+                lower: "0.01"
+                upper: "10.0"
+                default_value: "1.0"
+                log: true
+            - type: UniformInteger
+              name: n_estimators
+              numerical:
+                lower: "10"
+                upper: "1000"
+                default_value: "0.1"
+                log: false
+            - type: UniformFloat
+              name: subsample
+              numerical:
+                lower: "0.8"
+                upper: "1.0"
+                default_value: "1.0"
+                log: false
+            - type: UniformInteger
+              name: min_samples_split
+              numerical:
+                lower: "2"
+                upper: "3"
+                default_value: "2"
+                log: false
+            - type: UniformInteger
+              name: min_samples_leaf
+              numerical:
+                lower: "1"
+                upper: "2"
+                default_value: "1"
+                log: false
+
+#    - name: DeployMyelinTestHP
+#      deploy:
+#        imageBuild:
+#          repositoryName: deploy-myelin-test-hp
+#          artifact: rec-source
+#          buildLocation: /src/
+#          s2i:
+#            contextDir: xgboost_hpo_mnist
+#            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
+#
+#        endpointType: REST
+#        endpointRestType: Multipart
+
+  sensors:
+
+    - name: TrainOnStart
+      tasks:
+        - trainer:
+            task: TrainGBT
+
+    - name: DeploymentDecisionMaker
+      triggers:
+        - name: TestTrainingComplete
+          type: Lifecycle
+          condition: Succeeded
+          task: TrainGBT
+      tasks:
+        - deployer:
+            name: deployer
+            rolloutSpec:
+              - match:
+                destinations:
+                  - destinationIndex: 1
+                    weight: 80
+                  - destinationIndex: 2
+                    weight: 20
+                shadow:
+                  destinationIndex: 0
+            replicas: 1
+            models:
+              - name: DeployMyelinTestCo
+                modelSelectionStrategy: "best"
+                routingStrategy:
+                  - destinations:
+                      - destinationName: myelin-test
+                        weight: 100
+                backendModels:
+                  - name: myelin-test
+                    trainer: TrainGBT
+                    deployer: DeployMyelinTestHP
+                    modelSelectionStrategy: "best"
+            routes:
+              - path: /predict
+                dag:
+                  - model: DeployMyelinTestCo
+                    path: /predict
+              - path: /send-feedback
+                dag:
+                  - model: DeployMyelinTestCo
+                    path: /send-feedback
