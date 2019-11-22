@@ -1,7 +1,7 @@
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
-  name: xgboost_mnist
+  name: xgboost-mnist
 spec:
 
   serviceAccountName: myelin-app-myelin
@@ -27,15 +27,15 @@ spec:
           storage: 1Gi
 
   tasks:
-
     - name: TrainGBT
       train:
-        imageBuild:
-          repositoryName: train-myelin-test-hp
-          artifact: rec-source
-          buildLocation: /src/xgboost_hpo_mnist
-          dockerfile:
-            path: Dockerfile
+        image: gcr.io/myelin-public/myelin-images/xgboost_mnist:1.0.1-140-g799a3b4
+#        imageBuild:
+#          repositoryName: xgboost_mnist
+#          artifact: rec-source
+#          buildLocation: /src/xgboost_hpo_mnist
+#          dockerfile:
+#            path: Dockerfile
         lossMetric: "accuracy"
         hpTuning:
           concurrency: 2
@@ -63,7 +63,7 @@ spec:
               numerical:
                 lower: "10"
                 upper: "1000"
-                default_value: "0.1"
+                default_value: "100"
                 log: false
             - type: UniformFloat
               name: subsample
@@ -87,26 +87,25 @@ spec:
                 default_value: "1"
                 log: false
 
-#    - name: DeployMyelinTestHP
-#      deploy:
-#        imageBuild:
-#          repositoryName: deploy-myelin-test-hp
-#          artifact: rec-source
-#          buildLocation: /src/
-#          s2i:
-#            contextDir: xgboost_hpo_mnist
-#            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
-#
-#        endpointType: REST
-#        endpointRestType: Multipart
+    - name: DeployGBT
+      deploy:
+        imageBuild:
+          repositoryName: xgboost_mnist_deploy
+          artifact: rec-source
+          buildLocation: /src/
+          s2i:
+            contextDir: xgboost_mnist
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
 
+        endpointType: REST
+        endpointRestType: Multipart
+        
   sensors:
-
     - name: TrainOnStart
       tasks:
         - trainer:
             task: TrainGBT
-
+            
     - name: DeploymentDecisionMaker
       triggers:
         - name: TestTrainingComplete
@@ -127,23 +126,23 @@ spec:
                   destinationIndex: 0
             replicas: 1
             models:
-              - name: DeployMyelinTestCo
+              - name: MnistModel
                 modelSelectionStrategy: "best"
                 routingStrategy:
                   - destinations:
-                      - destinationName: myelin-test
+                      - destinationName: gbt-model
                         weight: 100
                 backendModels:
-                  - name: myelin-test
+                  - name: gbt-model
                     trainer: TrainGBT
-                    deployer: DeployMyelinTestHP
+                    deployer: DeployGBT
                     modelSelectionStrategy: "best"
             routes:
               - path: /predict
                 dag:
-                  - model: DeployMyelinTestCo
+                  - model: MnistModel
                     path: /predict
               - path: /send-feedback
                 dag:
-                  - model: DeployMyelinTestCo
+                  - model: MnistModel
                     path: /send-feedback
