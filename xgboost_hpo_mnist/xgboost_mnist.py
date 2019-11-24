@@ -10,7 +10,6 @@ import myelin.metric
 import logging
 import os
 
-
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -71,16 +70,28 @@ class GradientBoostingWorker:
         print("*" * 50)
         test_accuracy = metrics.accuracy_score(y_test, predicted)
 
-        myelin.metric.publish_result(test_accuracy, "accuracy")
-
         model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
         if not os.path.exists(model_path):
             os.makedirs(model_path)
 
         joblib.dump(classifier, os.path.join(model_path, 'sk.pkl'))
 
+        myelin.metric.publish_result(test_accuracy, "accuracy")
+
 
 def main():
+    """
+    Example run:
+    NAMESPACE=myelin
+    MYELIN_NAMESPACE=myelin
+    TASK_ID=task1
+    AXON_NAME=axon
+    PUSHGATEWAY_URL=push-url
+
+    --config_id 0_0_0 --budget 10 --criterion friedman_mse --learning_rate 0.01 --n_estimators 100 --subsample 1.0
+    --min_samples_split 2 --min_samples_leaf 1
+    :return:
+    """
     parser = argparse.ArgumentParser(description='Training')
     parser.add_argument('--config_id', type=str)
     parser.add_argument('--criterion', type=str)
