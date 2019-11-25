@@ -185,6 +185,7 @@ public class NeedingHelpGoPackageFinder {
     String popularGoPackagesTableId = String
             .format("%s:%s.%s", this.projectId, this.bigQueryDataset, POPULAR_GO_PACKAGES_TABLE);
     queryAndOutputPopularPackagesTable(popularGoPackagesTableId);
+    this.sqlContext.sparkContext().stop();
   }
 
   /**

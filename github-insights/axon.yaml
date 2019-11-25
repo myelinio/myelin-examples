@@ -1,113 +1,91 @@
-#    gcloud iam service-accounts create spark-bq --display-name spark-bq
+#  https://cloud.google.com/solutions/spark-on-kubernetes-engine
 #
-#    export SA_EMAIL=$(gcloud iam service-accounts list --filter="displayName:spark-bq" --format='value(email)')
-#
-#    gcloud projects add-iam-policy-binding $PROJECT --member serviceAccount:$SA_EMAIL --role roles/storage.admin
-#    gcloud projects add-iam-policy-binding $PROJECT --member serviceAccount:$SA_EMAIL --role roles/bigquery.dataOwner
-#    gcloud projects add-iam-policy-binding $PROJECT --member serviceAccount:$SA_EMAIL --role roles/bigquery.jobUser
-#
-#    gcloud iam service-accounts keys create spark-sa.json --iam-account $SA_EMAIL
-#    kubectl create secret generic spark-sa --from-file=spark-sa.json
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: spark
-  namespace: myelin
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: spark-role
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: edit
-subjects:
-  - kind: ServiceAccount
-    name: spark
-    namespace: myelin
----
+#  gcloud iam service-accounts create spark-bq --display-name spark-bq
+#  export SA_EMAIL=$(gcloud iam service-accounts list --filter="displayName:spark-bq" --format='value(email)')
+#  export PROJECT=$(gcloud info --format='value(config.project)')
+#  gcloud projects add-iam-policy-binding $PROJECT --member serviceAccount:$SA_EMAIL --role roles/storage.admin
+#  gcloud projects add-iam-policy-binding $PROJECT --member serviceAccount:$SA_EMAIL --role roles/bigquery.dataOwner
+#  gcloud projects add-iam-policy-binding $PROJECT --member serviceAccount:$SA_EMAIL --role roles/bigquery.jobUser
+#  gcloud iam service-accounts keys create spark-sa.json --iam-account $SA_EMAIL
+#  kubectl create secret generic spark-sa --from-file=spark-sa.json
+#  kubectl create clusterrolebinding user-admin-binding --clusterrole=cluster-admin --user=$(gcloud config get-value account)
+#  kubectl create clusterrolebinding --clusterrole=cluster-admin --serviceaccount=default:default spark-admin
+#  kubectl create serviceaccount spark
+#  kubectl create clusterrolebinding spark-role --clusterrole=edit --serviceaccount=myelin:spark --namespace=myelin
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
   name: spark-job-axon
 spec:
-
   serviceAccountName: myelin-app-myelin
-
   artifacts:
     - name: spark-job-source
       path: /src
       git:
         repo: https://github.com/myelinio/myelin-examples.git
         revision: master
-
   volume:
-    name: axon-store
+    name: spark-job-axon-store
     hostPath:
       path: /var/lib/myelin
-
   tasks:
     - name: SparkJob
       spark:
-
-
-        #        image:  docker.io/myelinio/spark-client:v2.3.0
-        imageBuild:
-          repositoryName: github-insights
-          artifact: spark-job-source
-          buildLocation: /src/github-insights/
-          dockerfile:
-            path: Dockerfile
-          volumeMounts:
-            - name: google-cloud-key
-              mountPath: /src/github-insights/secrets
-          volumes:
-            - name: google-cloud-key
-              secret:
-                secretName: spark-sa
-
-        properties: |
-          spark.app.name  github-insights
-          spark.kubernetes.namespace myelin
-          spark.kubernetes.driverEnv.GCS_PROJECT_ID myelin-development
-          spark.kubernetes.driverEnv.GOOGLE_APPLICATION_CREDENTIALS /mnt/secrets/spark-sa.json
-          spark.kubernetes.container.image gcr.io/cloud-solutions-images/spark:v2.3.0-gcs
-          spark.kubernetes.driver.secrets.spark-sa  /mnt/secrets
-          spark.kubernetes.executor.secrets.spark-sa /mnt/secrets
-          spark.kubernetes.authenticate.driver.serviceAccountName	spark
-          spark.driver.cores 0.1
-          spark.executor.instances 4
-          spark.executor.cores 1
-          spark.executor.memory 512m
-          spark.driver.memory 1024m
-          spark.executorEnv.GCS_PROJECT_ID    myelin-development
-          spark.executorEnv.GOOGLE_APPLICATION_CREDENTIALS /mnt/secrets/spark-sa.json
-          spark.hadoop.google.cloud.auth.service.account.enable true
-          spark.hadoop.google.cloud.auth.service.account.json.keyfile /mnt/secrets/spark-sa.json
-          spark.hadoop.fs.gs.project.id myelin-development
-          spark.hadoop.fs.gs.system.bucket myelin-development-spark-on-k8s
-          spark.dynamicAllocation.executorIdleTimeout 600s
-
-        # OR a config map
-        #        propertiesConfigMap: spark-config
-        #        propertiesConfigMapKey: spark-properties
-
-        # DEFAULT cluster
-        #        deployMode: cluster
-
-        class: spark.bigquery.example.github.NeedingHelpGoPackageFinder
-        jars:
-          - http://central.maven.org/maven2/com/databricks/spark-avro_2.11/4.0.0/spark-avro_2.11-4.0.0.jar
-          - gs://myelin-development-spark-on-k8s2/jars/github-insights-1.0-SNAPSHOT-jar-with-dependencies.jar
-        args:
-          - myelin-development
-          - spark_on_k8s
-          - myelin-development-spark-on-k8s
-          - --usesample
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/github-insights:1.0.1-144-g50748e8
+        #        imageBuild:
+        #          repositoryName: github-insights
+        #          artifact: spark-job-source
+        #          buildLocation: /src/github-insights/
+        #          dockerfile:
+        #            path: Dockerfile
+        #          volumeMounts:
+        #            - name: google-cloud-key
+        #              mountPath: /src/github-insights/secrets
+        #          volumes:
+        #            - name: google-cloud-key
+        #              secret:
+        #                secretName: spark-sa
+        sparkSpec:
+          properties: |
+            spark.app.name  github-insights
+            spark.kubernetes.namespace myelin
+            spark.kubernetes.driverEnv.GCS_PROJECT_ID myelin-development
+            spark.kubernetes.driverEnv.GOOGLE_APPLICATION_CREDENTIALS /mnt/secrets/spark-sa.json
+            spark.kubernetes.container.image docker.io/myelinio/spark-client:v2.3.0-k8s-1.14-1
+            spark.kubernetes.driver.secrets.spark-sa  /mnt/secrets
+            spark.kubernetes.executor.secrets.spark-sa /mnt/secrets
+            spark.kubernetes.authenticate.driver.serviceAccountName	spark
+            spark.driver.cores 0.1
+            spark.executor.instances 4
+            spark.executor.cores 1
+            spark.executor.memory 512m
+            spark.driver.memory 1024m
+            spark.executorEnv.GCS_PROJECT_ID    myelin-development
+            spark.executorEnv.GOOGLE_APPLICATION_CREDENTIALS /mnt/secrets/spark-sa.json
+            spark.hadoop.google.cloud.auth.service.account.enable true
+            spark.hadoop.google.cloud.auth.service.account.json.keyfile /mnt/secrets/spark-sa.json
+            spark.hadoop.fs.gs.project.id myelin-development
+            spark.hadoop.fs.gs.system.bucket myelin-development-spark-on-k8s
+            spark.dynamicAllocation.executorIdleTimeout 600s
+          # OR a config map
+          #        propertiesConfigMap: spark-config
+          #        propertiesConfigMapKey: spark-properties
+          # DEFAULT cluster
+          #        deployMode: cluster
+          class: spark.bigquery.example.github.NeedingHelpGoPackageFinder
+          jars:
+            - http://central.maven.org/maven2/com/databricks/spark-avro_2.11/4.0.0/spark-avro_2.11-4.0.0.jar
+            - gs://myelin-development-spark-on-k8s2/jars/github-insights-1.0-SNAPSHOT-jar-with-dependencies.jar
+          args:
+            - myelin-development
+            - spark_on_k8s
+            - myelin-development-spark-on-k8s
+            - --usesample
   sensors:
     - name: SparkJob
       tasks:
         - resourceExecutor:
             task: SparkJob
+#      triggers:
+#        - name: RestTrigger
+#          type: Rest
