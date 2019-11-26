@@ -31,7 +31,7 @@ spec:
   tasks:
     - name: SparkTask
       spark:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/pi-example:1.0.1-145-gf0c2051
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/pi-example:1.0.1-147-g4018788
         imageBuild:
           repositoryName: pi-example
           artifact: spark-job-source

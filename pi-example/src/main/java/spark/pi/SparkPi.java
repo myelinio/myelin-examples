@@ -33,5 +33,6 @@ public final class SparkPi {
         }).reduce((a, b) -> a + b);
 
         System.out.println("Pi is roughly " + 4.0 * count / n);
+        jsc.close();
     }
 }
