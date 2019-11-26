@@ -9,6 +9,12 @@ ADD ./ /app
 
 RUN mvn clean package
 
+FROM google/cloud-sdk:slim
+
+RUN mkdir -p /var/secrets/google/
+ADD secrets/ /var/secrets/google/
+RUN ls /var/secrets/google/
+
 WORKDIR /deploy
 
 COPY --from=mavenbuild /app/target/pi-example-1.0-SNAPSHOT-jar-with-dependencies.jar .

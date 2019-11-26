@@ -15,7 +15,7 @@
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
-  name: spark-job-axon
+  name: spark-pi-axon
 spec:
   serviceAccountName: myelin-app-myelin
   artifacts:
@@ -38,6 +38,13 @@ spec:
           buildLocation: /src/pi-example/
           dockerfile:
             path: Dockerfile
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /src/pi-example/secrets
+          volumes:
+            - name: google-cloud-key
+              secret:
+                secretName: spark-sa
         sparkSpec:
           properties: |
             spark.kubernetes.driverEnv.GCS_PROJECT_ID myelin-development
@@ -59,20 +66,10 @@ spec:
             spark.hadoop.fs.gs.system.bucket myelin-development-spark-on-k8s
             spark.dynamicAllocation.executorIdleTimeout 600s
 
-          # OR a config map
-          #        propertiesConfigMap: spark-config
-          #        propertiesConfigMapKey: spark-properties
-          # DEFAULT cluster
-          #        deployMode: cluster
-          class: spark.bigquery.example.github.NeedingHelpGoPackageFinder
+          class: spark.pi.SparkPi
           jars:
             - http://central.maven.org/maven2/com/databricks/spark-avro_2.11/4.0.0/spark-avro_2.11-4.0.0.jar
             - gs://myelin-development-spark-on-k8s2/jars/pi-example-1.0-SNAPSHOT-jar-with-dependencies.jar
-          args:
-            - myelin-development
-            - spark_on_k8s
-            - myelin-development-spark-on-k8s
-            - --usesample
   sensors:
     - name: SparkTask
       tasks:

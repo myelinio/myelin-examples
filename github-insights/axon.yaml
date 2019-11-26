@@ -29,26 +29,24 @@ spec:
     hostPath:
       path: /var/lib/myelin
   tasks:
-    - name: SparkJob
+    - name: SparkTask
       spark:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/github-insights:1.0.1-144-g50748e8
-        #        imageBuild:
-        #          repositoryName: github-insights
-        #          artifact: spark-job-source
-        #          buildLocation: /src/github-insights/
-        #          dockerfile:
-        #            path: Dockerfile
-        #          volumeMounts:
-        #            - name: google-cloud-key
-        #              mountPath: /src/github-insights/secrets
-        #          volumes:
-        #            - name: google-cloud-key
-        #              secret:
-        #                secretName: spark-sa
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/github-insights:1.0.1-145-gf0c2051
+#        imageBuild:
+#          repositoryName: github-insights
+#          artifact: spark-job-source
+#          buildLocation: /src/github-insights/
+#          dockerfile:
+#            path: Dockerfile
+#          volumeMounts:
+#            - name: google-cloud-key
+#              mountPath: /src/github-insights/secrets
+#          volumes:
+#            - name: google-cloud-key
+#              secret:
+#                secretName: spark-sa
         sparkSpec:
           properties: |
-            spark.app.name  github-insights
-            spark.kubernetes.namespace myelin
             spark.kubernetes.driverEnv.GCS_PROJECT_ID myelin-development
             spark.kubernetes.driverEnv.GOOGLE_APPLICATION_CREDENTIALS /mnt/secrets/spark-sa.json
             spark.kubernetes.container.image docker.io/myelinio/spark-client:v2.3.0-k8s-1.14-1
@@ -56,7 +54,7 @@ spec:
             spark.kubernetes.executor.secrets.spark-sa /mnt/secrets
             spark.kubernetes.authenticate.driver.serviceAccountName	spark
             spark.driver.cores 0.1
-            spark.executor.instances 4
+            spark.executor.instances 2
             spark.executor.cores 1
             spark.executor.memory 512m
             spark.driver.memory 1024m
@@ -67,6 +65,7 @@ spec:
             spark.hadoop.fs.gs.project.id myelin-development
             spark.hadoop.fs.gs.system.bucket myelin-development-spark-on-k8s
             spark.dynamicAllocation.executorIdleTimeout 600s
+
           # OR a config map
           #        propertiesConfigMap: spark-config
           #        propertiesConfigMapKey: spark-properties
@@ -82,10 +81,10 @@ spec:
             - myelin-development-spark-on-k8s
             - --usesample
   sensors:
-    - name: SparkJob
+    - name: SparkTask
       tasks:
         - resourceExecutor:
-            task: SparkJob
+            task: SparkTask
 #      triggers:
 #        - name: RestTrigger
 #          type: Rest
