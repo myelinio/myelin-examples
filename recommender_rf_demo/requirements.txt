@@ -1,7 +1,7 @@
 numpy==1.16.0rc1
 h5py==2.8.0
 scipy>= 0.13.3
-scikit-learn>=0.20
+scikit-learn==0.20.0
 pandas>=0.22.0
 six>=1.11.0
 myelin==0.0.10
