@@ -1,4 +1,4 @@
-#GPT2 demo
+# GPT2 demo
 
 This example downloads an a pre-trained GPT2 model and fine tunes is to all the
 complete works of Shakespeare. Note that it training is very slow on CPUs. More 
