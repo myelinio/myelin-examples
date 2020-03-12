@@ -15,7 +15,7 @@
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
-  name: spark-job-axon
+  name: github-insights-spark
 spec:
   serviceAccountName: myelin-app-myelin
   artifacts:
@@ -32,14 +32,14 @@ spec:
     - name: SparkTask
       spark:
         imageBuild:
-          repositoryName: github_insights
+          repositoryName: github_insights_spark
           artifact: spark-job-source
-          buildLocation: /src/github_insights/
+          buildLocation: /src/github_insights_spark/
           dockerfile:
             path: Dockerfile
           volumeMounts:
             - name: google-cloud-key
-              mountPath: /src/github_insights/secrets
+              mountPath: /src/github_insights_spark/secrets
           volumes:
             - name: google-cloud-key
               secret:
@@ -73,7 +73,7 @@ spec:
           class: spark.bigquery.example.github.NeedingHelpGoPackageFinder
           jars:
             - http://central.maven.org/maven2/com/databricks/spark-avro_2.11/4.0.0/spark-avro_2.11-4.0.0.jar
-            - gs://myelin-development-spark-on-k8s2/jars/github_insights-1.0-SNAPSHOT-jar-with-dependencies.jar
+            - gs://myelin-development-spark-on-k8s2/jars/github_insights_spark-1.0-SNAPSHOT-jar-with-dependencies.jar
           args:
             - myelin-development
             - spark_on_k8s
