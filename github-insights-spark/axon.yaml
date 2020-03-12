@@ -19,14 +19,14 @@ spec:
     - name: SparkTask
       spark:
         imageBuild:
-          repositoryName: github_insights_spark
+          repositoryName: github-insights-spark
           artifact: spark-job-source
-          buildLocation: /src/github_insights_spark/
+          buildLocation: /src/github-insights-spark/
           dockerfile:
             path: Dockerfile
           volumeMounts:
             - name: google-cloud-key
-              mountPath: /src/github_insights_spark/secrets
+              mountPath: /src/github-insights-spark/secrets
           volumes:
             - name: google-cloud-key
               secret:
@@ -49,7 +49,7 @@ spec:
             spark.hadoop.google.cloud.auth.service.account.enable true
             spark.hadoop.google.cloud.auth.service.account.json.keyfile /mnt/secrets/spark-sa.json
             spark.hadoop.fs.gs.project.id myelin-development
-            spark.hadoop.fs.gs.system.bucket myelin-development-spark-on-k8s
+            spark.hadoop.fs.gs.system.bucket myelin-development-spark-on-k8s2
             spark.dynamicAllocation.executorIdleTimeout 600s
 
           # OR a config map
@@ -60,11 +60,11 @@ spec:
           class: spark.bigquery.example.github.NeedingHelpGoPackageFinder
           jars:
             - http://central.maven.org/maven2/com/databricks/spark-avro_2.11/4.0.0/spark-avro_2.11-4.0.0.jar
-            - gs://myelin-development-spark-on-k8s2/jars/github_insights_spark-1.0-SNAPSHOT-jar-with-dependencies.jar
+            - gs://myelin-development-spark-on-k8s2/jars/github-insights-1.0-SNAPSHOT-jar-with-dependencies.jar
           args:
             - myelin-development
             - spark_on_k8s
-            - myelin-development-spark-on-k8s
+            - myelin-development-spark-on-k8s2
             - --usesample
   sensors:
     - name: SparkTask
