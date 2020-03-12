@@ -1,7 +1,7 @@
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
-  name: ml-gpt2
+  name: gpt2-demo
 spec:
 
   serviceAccountName: myelin-app-myelin

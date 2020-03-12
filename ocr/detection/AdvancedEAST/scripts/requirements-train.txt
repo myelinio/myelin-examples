@@ -1,4 +1,0 @@
-tqdm
-tensorflow-gpu
-keras
-Pillow

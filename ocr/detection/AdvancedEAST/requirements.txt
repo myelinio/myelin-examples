@@ -1,6 +1,0 @@
-tqdm
-tensorflow-gpu
-keras
-Pillow
-myelin
-opencv-python
