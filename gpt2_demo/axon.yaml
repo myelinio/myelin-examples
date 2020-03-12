@@ -1,10 +1,10 @@
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
-  name: ml-gpt2-gpu
+  name: ml-gpt2
 spec:
 
-  serviceAccountName: myelin-minimal
+  serviceAccountName: myelin-app-myelin
 
   artifacts:
     - name: gpt2-source
@@ -42,15 +42,7 @@ spec:
           artifact: gpt2-source
           buildLocation: /src/gpt2_demo
           dockerfile:
-            path: Dockerfile.train-gpu
-        env:
-          - name: LD_LIBRARY_PATH
-            value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
-        nodeSelector:
-          cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
-        resources:
-          limits:
-            nvidia.com/gpu: 1
+            path: Dockerfile.train
 
     - name: DeployGPT2
       deploy:
@@ -62,15 +54,7 @@ spec:
           buildLocation: /src/
           s2i:
             contextDir: gpt2_demo
-            builderImage: docker.io/myelinio/myelin-deployer-s2i-cuda10-runtime-py3:v0.1.6
-        env:
-          - name: LD_LIBRARY_PATH
-            value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
-        nodeSelector:
-          cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
-        resources:
-          limits:
-            nvidia.com/gpu: 1
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-cuda10-py3:v0.1.5
 
   sensors:
 

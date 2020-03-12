@@ -10,17 +10,12 @@ def download_gpt2(data_path, model_name='117M'):
 	Adapted from https://github.com/openai/gpt-2/blob/master/download_model.py
 	"""
 
-	untrained_filenames = ['checkpoint', 'encoder.json', 'hparams.json',
-					 'model.ckpt.data-00000-of-00001', 'model.ckpt.index',
-					 'model.ckpt.meta', 'vocab.bpe']
-
 	trained_filenames = ['checkpoint', 'encoder.json', 'hparams.json',
 					 'model-1001.data-00000-of-00001', 'model-1001.index',
 					 'model-1001.meta', 'vocab.bpe']
 
 	for filename in trained_filenames:
 
-		untrained_model = "https://storage.googleapis.com/gpt-2/models/" + model_name + "/"
 		trained_model = "https://storage.googleapis.com/myelin-gpt-2/models/shakespeare/" + model_name + "/"
 
 		r = requests.get(trained_model + filename, stream=True)
