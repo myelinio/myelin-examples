@@ -31,20 +31,19 @@ spec:
   tasks:
     - name: SparkTask
       spark:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/github-insights:1.0.1-145-gf0c2051
-#        imageBuild:
-#          repositoryName: github-insights
-#          artifact: spark-job-source
-#          buildLocation: /src/github-insights/
-#          dockerfile:
-#            path: Dockerfile
-#          volumeMounts:
-#            - name: google-cloud-key
-#              mountPath: /src/github-insights/secrets
-#          volumes:
-#            - name: google-cloud-key
-#              secret:
-#                secretName: spark-sa
+        imageBuild:
+          repositoryName: github_insights
+          artifact: spark-job-source
+          buildLocation: /src/github_insights/
+          dockerfile:
+            path: Dockerfile
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /src/github_insights/secrets
+          volumes:
+            - name: google-cloud-key
+              secret:
+                secretName: spark-sa
         sparkSpec:
           properties: |
             spark.kubernetes.driverEnv.GCS_PROJECT_ID myelin-development
@@ -74,7 +73,7 @@ spec:
           class: spark.bigquery.example.github.NeedingHelpGoPackageFinder
           jars:
             - http://central.maven.org/maven2/com/databricks/spark-avro_2.11/4.0.0/spark-avro_2.11-4.0.0.jar
-            - gs://myelin-development-spark-on-k8s2/jars/github-insights-1.0-SNAPSHOT-jar-with-dependencies.jar
+            - gs://myelin-development-spark-on-k8s2/jars/github_insights-1.0-SNAPSHOT-jar-with-dependencies.jar
           args:
             - myelin-development
             - spark_on_k8s
@@ -85,6 +84,3 @@ spec:
       tasks:
         - resourceExecutor:
             task: SparkTask
-#      triggers:
-#        - name: RestTrigger
-#          type: Rest
