@@ -1,7 +1,7 @@
 scipy
 numpy
 python-mnist
-tensorflow-gpu==1.13.1
+tensorflow-gpu==1.15.2
 Pillow
 matplotlib
 myelin==0.0.11
