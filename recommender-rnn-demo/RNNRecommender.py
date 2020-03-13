@@ -7,7 +7,6 @@ from myelin_model.cf_model import CFModel
 from myelin_model.utils import load_obj
 import numpy as np
 import pandas as pd
-import sys
 from myelin import metric
 
 model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
