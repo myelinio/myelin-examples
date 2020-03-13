@@ -84,25 +84,25 @@ spec:
                   - destinationIndex: 1
                     weight: 50
             models:
-              - name: RecommenderModel
+              - name: RNNRecommender
                 modelSelectionStrategy: "best"
                 routingStrategy:
                   - destinations:
-                      - destinationName: BackendRecommender
+                      - destinationName: backend-rnn-recommender
                         weight: 100
                 backendModels:
-                  - name: BackendRecommender
+                  - name: backend-rnn-recommender
                     trainer: TrainMyelinRecommender
                     deployer: DeployMyelinRecommender
                     modelSelectionStrategy: "best"
             routes:
               - path: /predict
                 dag:
-                  - model: RecommenderModel
+                  - model: RNNRecommender
                     path: /predict
               - path: /send-feedback
                 dag:
-                  - model: RecommenderModel
+                  - model: RNNRecommender
                     path: /send-feedback
 
     - name: PostDeploymentDecisionMaker
