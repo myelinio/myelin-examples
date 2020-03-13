@@ -5,6 +5,6 @@ scikit-learn==0.18
 pandas==0.22.0
 keras==1.2.2
 six==1.11.0
-tensorflow==1.12.1
+tensorflow==1.12.*
 Theano==1.0.4
 myelin==0.0.11
