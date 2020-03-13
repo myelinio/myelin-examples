@@ -1,7 +1,7 @@
 import os
 
 os.environ['KERAS_BACKEND'] = 'theano'
-os.environ['THEANO_FLAGS'] = "blas.ldflags=\"-L/usr/lib/openblas-base -lopenblas\""
+os.environ['THEANO_FLAGS'] = "blas.ldflags=\"-lblas\""
 
 import pandas as pd
 import math
