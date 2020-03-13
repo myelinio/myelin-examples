@@ -1,7 +1,7 @@
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
-  name: model-graph
+  name: multi-model-graph
 spec:
 
   serviceAccountName: myelin-app-myelin
@@ -27,96 +27,87 @@ spec:
     # Model1
     - name: DataPrepModel1
       container:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/model-graph-model1-preprocess:1.0.1-67-g25b4509
-#        imageBuild:
-#          repositoryName: model-graph-model1-preprocess
-#          artifact: rec-source
-#          buildLocation: /src/test_demo_dag/model1
-#          dockerfile:
-#            path: Dockerfile.preprocess
+        imageBuild:
+          repositoryName: model-graph-model1-preprocess
+          artifact: rec-source
+          buildLocation: /src/test_demo_dag/model1
+          dockerfile:
+            path: Dockerfile.preprocess
 
     - name: TrainModel1
       train:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/model-graph-model1-train:1.0.1-67-g25b4509
-#        imageBuild:
-#          repositoryName: model-graph-model1-train
-#          artifact: rec-source
-#          buildLocation: /src/test_demo_dag/model1
-#          dockerfile:
-#            path: Dockerfile.train
+        imageBuild:
+          repositoryName: model-graph-model1-train
+          artifact: rec-source
+          buildLocation: /src/test_demo_dag/model1
+          dockerfile:
+            path: Dockerfile.train
 
     - name: DeployModel1
       deploy:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/model-graph-model1-deploy:1.0.1-67-g25b4509
-#        imageBuild:
-#          repositoryName: model-graph-model1-deploy
-#          artifact: rec-source
-#          buildLocation: /src/
-#          s2i:
-#            contextDir: test_demo_dag/model1
-#            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
+        imageBuild:
+          repositoryName: model-graph-model1-deploy
+          artifact: rec-source
+          buildLocation: /src/
+          s2i:
+            contextDir: test_demo_dag/model1
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.5
         endpointType: REST
         endpointRestType: Multipart
 
     # Model2
     - name: DataPrepModel2
       container:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/model-graph-model2-preprocess:1.0.1-67-g25b4509
-#        imageBuild:
-#          repositoryName: model-graph-model2-preprocess
-#          artifact: rec-source
-#          buildLocation: /src/test_demo_dag/model2
-#          dockerfile:
-#            path: Dockerfile.preprocess
+        imageBuild:
+          repositoryName: model-graph-model2-preprocess
+          artifact: rec-source
+          buildLocation: /src/test_demo_dag/model2
+          dockerfile:
+            path: Dockerfile.preprocess
 
     - name: TrainModel2
       train:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/model-graph-model2-train:1.0.1-67-g25b4509
-#        imageBuild:
-#          repositoryName: model-graph-model2-train
-#          artifact: rec-source
-#          buildLocation: /src/test_demo_dag/model2
-#          dockerfile:
-#            path: Dockerfile.train
+        imageBuild:
+          repositoryName: model-graph-model2-train
+          artifact: rec-source
+          buildLocation: /src/test_demo_dag/model2
+          dockerfile:
+            path: Dockerfile.train
 
     - name: DeployModel2
       deploy:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/model-graph-model2-deploy:1.0.1-67-g25b4509
-#        imageBuild:
-#          repositoryName: model-graph-model2-deploy
-#          artifact: rec-source
-#          buildLocation: /src/
-#          s2i:
-#            contextDir: test_demo_dag/model2
-#            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
+        imageBuild:
+          repositoryName: model-graph-model2-deploy
+          artifact: rec-source
+          buildLocation: /src/
+          s2i:
+            contextDir: test_demo_dag/model2
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.5
         endpointType: REST
         endpointRestType: Multipart
 
     # Model3
     - name: DataPrepModel3
       container:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/model-graph-model3-preprocess:1.0.1-67-g25b4509
-#        imageBuild:
-#          repositoryName: model-graph-model3-preprocess
-#          artifact: rec-source
-#          buildLocation: /src/test_demo_dag/model3
-#          dockerfile:
-#            path: Dockerfile.preprocess
+        imageBuild:
+          repositoryName: model-graph-model3-preprocess
+          artifact: rec-source
+          buildLocation: /src/test_demo_dag/model3
+          dockerfile:
+            path: Dockerfile.preprocess
 
     - name: TrainModel3
       train:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/model-graph-model3-train:1.0.1-67-g25b4509
-#        imageBuild:
-#          repositoryName: model-graph-model3-train
-#          artifact: rec-source
-#          buildLocation: /src/test_demo_dag/model3
-#          dockerfile:
-#            path: Dockerfile.train
+        imageBuild:
+          repositoryName: model-graph-model3-train
+          artifact: rec-source
+          buildLocation: /src/test_demo_dag/model3
+          dockerfile:
+            path: Dockerfile.train
 
 
     - name: DeployModel3
       deploy:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/model-graph-model3-deploy:1.0.1-73-g1233aea
         imageBuild:
           repositoryName: model-graph-model3-deploy
           artifact: rec-source
@@ -231,7 +222,6 @@ spec:
                 dag:
                   - model: DeployModel3
                     path: /predict
-                    dependency: /predict
                     includeInput: true
                     dependencies:
                       - DeployModel1
