@@ -30,7 +30,7 @@ spec:
         imageBuild:
           repositoryName: preprocess-myelin-recommender
           artifact: rec-source
-          buildLocation: /src/recommender_demo
+          buildLocation: /src/recommender-demo
           dockerfile:
             path: Dockerfile.preprocess
 
@@ -40,7 +40,7 @@ spec:
         imageBuild:
           repositoryName: train-myelin-recommender
           artifact: rec-source
-          buildLocation: /src/recommender_demo
+          buildLocation: /src/recommender-demo
           dockerfile:
             path: Dockerfile.train
 
@@ -53,7 +53,7 @@ spec:
           artifact: rec-source
           buildLocation: /src/
           s2i:
-            contextDir: recommender_demo
+            contextDir: recommender-demo
             builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
 
   sensors:
