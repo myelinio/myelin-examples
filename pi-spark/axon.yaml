@@ -1,7 +1,7 @@
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
-  name: spark-pi-axon
+  name: pi-spark
 spec:
   serviceAccountName: myelin-app-myelin
   artifacts:

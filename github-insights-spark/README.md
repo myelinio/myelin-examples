@@ -15,9 +15,9 @@ gcloud projects add-iam-policy-binding $PROJECT --member serviceAccount:$SA_EMAI
 gcloud projects add-iam-policy-binding $PROJECT --member serviceAccount:$SA_EMAIL --role roles/bigquery.dataOwner
 gcloud projects add-iam-policy-binding $PROJECT --member serviceAccount:$SA_EMAIL --role roles/bigquery.jobUser
 gcloud iam service-accounts keys create spark-sa.json --iam-account $SA_EMAIL
-kubectl create secret generic spark-sa --from-file=spark-sa.json
+kubectl create secret generic spark-sa --from-file=spark-sa.json --namespace=myelin
 kubectl create clusterrolebinding user-admin-binding --clusterrole=cluster-admin --user=$(gcloud config get-value account)
 kubectl create clusterrolebinding --clusterrole=cluster-admin --serviceaccount=default:default spark-admin
-kubectl create serviceaccount spark
+kubectl create serviceaccount spark --namespace=myelin
 kubectl create clusterrolebinding spark-role --clusterrole=edit --serviceaccount=myelin:spark --namespace=myelin
 ```
