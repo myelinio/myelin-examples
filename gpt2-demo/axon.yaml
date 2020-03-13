@@ -30,7 +30,7 @@ spec:
         imageBuild:
           repositoryName: preprocess-myelin-gpt2
           artifact: gpt2-source
-          buildLocation: /src/gpt2_demo
+          buildLocation: /src/gpt2-demo
           dockerfile:
             path: Dockerfile.preprocess
 
@@ -40,7 +40,7 @@ spec:
         imageBuild:
           repositoryName: train-myelin-gpt2
           artifact: gpt2-source
-          buildLocation: /src/gpt2_demo
+          buildLocation: /src/gpt2-demo
           dockerfile:
             path: Dockerfile.train
 
@@ -53,8 +53,8 @@ spec:
           artifact: gpt2-source
           buildLocation: /src/
           s2i:
-            contextDir: gpt2_demo
-            builderImage: docker.io/myelinio/myelin-deployer-s2i-cuda10-py3:v0.1.5
+            contextDir: gpt2-demo
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.5
 
   sensors:
 
