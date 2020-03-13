@@ -29,7 +29,7 @@ spec:
 
           class: spark.pi.SparkPi
           jars:
-            - http://central.maven.org/maven2/com/databricks/spark-avro_2.11/4.0.0/spark-avro_2.11-4.0.0.jar
+            - https://repo1.maven.org/maven2/maven2/com/databricks/spark-avro_2.11/4.0.0/spark-avro_2.11-4.0.0.jar
             - gs://myelin-development-spark-on-k8s2/jars/pi-example-1.0-SNAPSHOT-jar-with-dependencies.jar
   sensors:
     - name: SparkTask
