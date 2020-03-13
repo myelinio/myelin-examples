@@ -1,8 +1,5 @@
 import os
 
-os.environ['KERAS_BACKEND'] = 'theano'
-os.environ['THEANO_FLAGS'] = "blas.ldflags=\"-lblas\""
-
 from myelin_model.cf_model import CFModel
 from myelin_model.utils import load_obj
 import numpy as np
