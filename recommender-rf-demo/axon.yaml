@@ -1,7 +1,7 @@
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
-  name: ml-rec-rf
+  name: rec-rf-demo
 spec:
 
   serviceAccountName: myelin-app-myelin
@@ -30,7 +30,7 @@ spec:
         imageBuild:
           repositoryName: preprocess-myelin-recommender
           artifact: rec-source
-          buildLocation: /src/recommender_rf_demo
+          buildLocation: /src/recommender-rf-demo
           dockerfile:
             path: Dockerfile.preprocess
 
@@ -40,7 +40,7 @@ spec:
         imageBuild:
           repositoryName: train-myelin-recommender
           artifact: rec-source
-          buildLocation: /src/recommender_rf_demo
+          buildLocation: /src/recommender-rf-demo
           dockerfile:
             path: Dockerfile.train
 
@@ -53,7 +53,7 @@ spec:
           artifact: rec-source
           buildLocation: /src/
           s2i:
-            contextDir: recommender_rf_demo
+            contextDir: recommender-rf-demo
             builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.5
 
   sensors:
