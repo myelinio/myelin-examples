@@ -9,3 +9,5 @@ info about this example can be found [here](https://myelin.io/docs/examples/nlp/
 ```
 {"data": {"ndarray": ["To be, or not to be: that is the question"]}}
 ```
+
+The API returns some generated text based on this seed sentence.
