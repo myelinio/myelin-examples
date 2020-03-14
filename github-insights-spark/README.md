@@ -1,6 +1,6 @@
 # Github insights Spark job
 
-This example runs a Spark job that reads data from BigQuery
+This example runs a Spark job that writes results to BigQuery.
 
 
 # Additional setup (Spark on Kubernetes) [ref](#  https://cloud.google.com/solutions/spark-on-kubernetes-engine)
