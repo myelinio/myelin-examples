@@ -1,0 +1,140 @@
+apiVersion: myelinproj.io/v1alpha1
+kind: Axon
+metadata:
+  name: ml-test-hp
+spec:
+
+  serviceAccountName: myelin-app-myelin
+
+  artifacts:
+    - name: rec-source
+      path: /src
+      git:
+        repo: git@github.com:myelinio/myelin-examples.git
+        revision: master
+        sshPrivateKeySecret:
+          name: github-creds
+          key: ssh-private-key
+
+  volumeClaimTemplate:
+    metadata:
+      name: axon-store
+    spec:
+      storageClassName: nfs
+      accessModes: ["ReadWriteMany"]
+      resources:
+        requests:
+          storage: 1Gi
+
+  tasks:
+
+    - name: DataPrepTestHP
+      container:
+        imageBuild:
+          repositoryName: preprocess-myelin-test-hp
+          artifact: rec-source
+          buildLocation: /src/tests/test-demo-hp
+          dockerfile:
+            path: Dockerfile.preprocess
+
+
+    - name: TrainMyelinTestHP
+      train:
+        imageBuild:
+          repositoryName: train-myelin-test-hp
+          artifact: rec-source
+          buildLocation: /src/tests/test-demo-hp
+          dockerfile:
+            path: Dockerfile.train
+        lossMetric: "rmse"
+        hpTuning:
+          concurrency: 2
+          minBudget: 3
+          maxBudget: 10
+          numIteration: 2
+          optimiser: RandomSearch
+          params:
+            - type: Categorical
+              name: kernel
+              categorical:
+                values:
+                  - rbf
+                  - poly
+                  - linear
+            - type: UniformFloat
+              name: C
+              numerical:
+                lower: "0.01"
+                upper: "10.0"
+                default_value: "1.0"
+                log: false
+            - type: UniformFloat
+              name: epsilon
+              numerical:
+                lower: "0.01"
+                upper: "10.0"
+                default_value: "0.1"
+                log: false
+
+    - name: DeployMyelinTestHP
+      deploy:
+        imageBuild:
+          repositoryName: deploy-myelin-test-hp
+          artifact: rec-source
+          buildLocation: /src/
+          s2i:
+            contextDir: tests/test-demo-hp
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
+
+        endpointType: REST
+        endpointRestType: Multipart
+
+  sensors:
+
+    - name: TrainOnStart
+      tasks:
+        - resourceExecutor:
+            task: DataPrepTestHP
+        - trainer:
+            task: TrainMyelinTestHP
+
+    - name: DeploymentDecisionMaker
+      triggers:
+        - name: TestTrainingComplete
+          type: Lifecycle
+          condition: Succeeded
+          task: TrainMyelinTestHP
+      tasks:
+        - deployer:
+            name: deployer
+            rolloutSpec:
+              - match:
+                destinations:
+                  - destinationIndex: 1
+                    weight: 80
+                  - destinationIndex: 2
+                    weight: 20
+                shadow:
+                  destinationIndex: 0
+            replicas: 1
+            models:
+              - name: DeployMyelinTestCo
+                modelSelectionStrategy: "best"
+                routingStrategy:
+                  - destinations:
+                      - destinationName: myelin-test
+                        weight: 100
+                backendModels:
+                  - name: myelin-test
+                    trainer: TrainMyelinTestHP
+                    deployer: DeployMyelinTestHP
+                    modelSelectionStrategy: "best"
+            routes:
+              - path: /predict
+                dag:
+                  - model: DeployMyelinTestCo
+                    path: /predict
+              - path: /send-feedback
+                dag:
+                  - model: DeployMyelinTestCo
+                    path: /send-feedback

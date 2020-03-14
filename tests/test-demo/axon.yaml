@@ -1,0 +1,145 @@
+apiVersion: myelinproj.io/v1alpha1
+kind: Axon
+metadata:
+  name: ml-test
+spec:
+
+  serviceAccountName: myelin-app-myelin
+
+  artifacts:
+    - name: rec-source
+      path: /src
+      git:
+        repo: https://github.com/myelinio/myelin-examples.git
+        revision: master
+
+  parameters:
+    - name: param1
+      value: value1
+    - name: param2
+      value: value2
+    - name: param3
+      value: value3
+
+  volumeClaimTemplate:
+    metadata:
+      name: axon-store
+    spec:
+      storageClassName: standard
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
+
+  tasks:
+
+    - name: DataPrepTest
+      container:
+        image: gcr.io/myelin-development/preprocess-myelin-test:test
+        env:
+          - name: PARAM1
+            value: "{{workflow.parameters.param1}}"
+          - name: PARAM2
+            value: "{{workflow.parameters.param2}}"
+          - name: PARAM3
+            value: "{{workflow.parameters.param3}}"
+
+    - name: TrainMyelinTest
+      train:
+        imageBuild:
+          repositoryName: train-myelin-test
+          artifact: rec-source
+          buildLocation: /src/tests/test-demo
+          dockerfile:
+            path: Dockerfile.train
+        env:
+          - name: PARAM1
+            value: "{{workflow.parameters.param1}}"
+          - name: PARAM2
+            value: "{{workflow.parameters.param2}}"
+          - name: PARAM3
+            value: "{{workflow.parameters.param3}}"
+
+    - name: DeployMyelinTest
+      deploy:
+        imageBuild:
+          repositoryName: deploy-myelin-test
+          artifact: rec-source
+          buildLocation: /src/
+          s2i:
+            contextDir: tests/test-demo
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
+        env:
+          - name: PARAM1
+            value: "{{workflow.parameters.param1}}"
+          - name: PARAM2
+            value: "{{workflow.parameters.param2}}"
+          - name: PARAM3
+            value: "{{workflow.parameters.param3}}"
+
+        endpointType: REST
+        endpointRestType: Multipart
+
+  sensors:
+
+    - name: TrainOnStart
+      tasks:
+        - resourceExecutor:
+            task: DataPrepTest
+        - trainer:
+            task: TrainMyelinTest
+
+    - name: DeploymentDecisionMaker
+      triggers:
+        - name: TestTrainingComplete
+          type: Lifecycle
+          condition: Succeeded
+          task: TrainMyelinTest
+      tasks:
+        - deployer:
+            name: deployer
+            rolloutSpec:
+              - destinations:
+                  - destinationIndex: 0
+                    weight: 50
+                  - destinationIndex: 1
+                    weight: 50
+            replicas: 1
+            models:
+              - name: DeployMyelinTestCo
+                modelSelectionStrategy: "best"
+                routingStrategy:
+                  - destinations:
+                      - destinationName: myelin-test1
+                        weight: 100
+                      - destinationName: myelin-test2
+                        weight: 0
+                backendModels:
+                  - name: myelin-test1
+                    trainer: TrainMyelinTest
+                    deployer: DeployMyelinTest
+                    modelSelectionStrategy: "best"
+                  - name: myelin-test2
+                    trainer: TrainMyelinTest
+                    deployer: DeployMyelinTest
+                    modelSelectionStrategy: "best"
+            routes:
+              - path: /predict
+                dag:
+                  - model: DeployMyelinTestCo
+                    path: /predict
+              - path: /send-feedback
+                dag:
+                  - model: DeployMyelinTestCo
+                    path: /send-feedback
+
+    - name: PostDeploymentDecisionMaker
+      triggers:
+        - name: TestDeployAccuracy
+          type: Alert
+          condition: "{{deploy_accuracy}} < 0.90"
+      tasks:
+        - resourceExecutor:
+            task: DataPrepTest
+        - trainer:
+            task: TrainMyelinTest
