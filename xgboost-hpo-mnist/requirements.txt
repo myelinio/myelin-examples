@@ -1,2 +1,2 @@
 scikit-learn==0.22.1
-myelin==0.0.10
+myelin==0.0.33
