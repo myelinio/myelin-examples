@@ -30,7 +30,7 @@ spec:
         imageBuild:
           repositoryName: model-graph-model1-preprocess
           artifact: rec-source
-          buildLocation: /src/test_demo_dag/model1
+          buildLocation: /src/multi-model-dag/model1
           dockerfile:
             path: Dockerfile.preprocess
 
@@ -39,7 +39,7 @@ spec:
         imageBuild:
           repositoryName: model-graph-model1-train
           artifact: rec-source
-          buildLocation: /src/test_demo_dag/model1
+          buildLocation: /src/multi-model-dag/model1
           dockerfile:
             path: Dockerfile.train
 
@@ -50,7 +50,7 @@ spec:
           artifact: rec-source
           buildLocation: /src/
           s2i:
-            contextDir: test_demo_dag/model1
+            contextDir: multi-model-dag/model1
             builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.5
         endpointType: REST
         endpointRestType: Multipart
@@ -61,7 +61,7 @@ spec:
         imageBuild:
           repositoryName: model-graph-model2-preprocess
           artifact: rec-source
-          buildLocation: /src/test_demo_dag/model2
+          buildLocation: /src/multi-model-dag/model2
           dockerfile:
             path: Dockerfile.preprocess
 
@@ -70,7 +70,7 @@ spec:
         imageBuild:
           repositoryName: model-graph-model2-train
           artifact: rec-source
-          buildLocation: /src/test_demo_dag/model2
+          buildLocation: /src/multi-model-dag/model2
           dockerfile:
             path: Dockerfile.train
 
@@ -81,7 +81,7 @@ spec:
           artifact: rec-source
           buildLocation: /src/
           s2i:
-            contextDir: test_demo_dag/model2
+            contextDir: multi-model-dag/model2
             builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.5
         endpointType: REST
         endpointRestType: Multipart
@@ -92,7 +92,7 @@ spec:
         imageBuild:
           repositoryName: model-graph-model3-preprocess
           artifact: rec-source
-          buildLocation: /src/test_demo_dag/model3
+          buildLocation: /src/multi-model-dag/model3
           dockerfile:
             path: Dockerfile.preprocess
 
@@ -101,7 +101,7 @@ spec:
         imageBuild:
           repositoryName: model-graph-model3-train
           artifact: rec-source
-          buildLocation: /src/test_demo_dag/model3
+          buildLocation: /src/multi-model-dag/model3
           dockerfile:
             path: Dockerfile.train
 
@@ -111,7 +111,7 @@ spec:
         imageBuild:
           repositoryName: model-graph-model3-deploy
           artifact: rec-source
-          buildLocation: /src/test_demo_dag/model3
+          buildLocation: /src/multi-model-dag/model3
           dockerfile:
             path: Dockerfile.deploy
         endpointType: REST
