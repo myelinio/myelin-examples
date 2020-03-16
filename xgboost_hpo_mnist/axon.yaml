@@ -29,13 +29,12 @@ spec:
   tasks:
     - name: TrainGBT
       train:
-        image: gcr.io/myelin-public/myelin-images/xgboost_mnist:1.0.1-140-g799a3b4
-#        imageBuild:
-#          repositoryName: xgboost_mnist
-#          artifact: rec-source
-#          buildLocation: /src/xgboost_hpo_mnist
-#          dockerfile:
-#            path: Dockerfile
+        imageBuild:
+          repositoryName: xgboost_mnist
+          artifact: rec-source
+          buildLocation: /src/xgboost_hpo_mnist
+          dockerfile:
+            path: Dockerfile
         lossMetric: "accuracy"
         hpTuning:
           concurrency: 2
