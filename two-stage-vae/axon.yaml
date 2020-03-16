@@ -6,24 +6,42 @@ spec:
 
   serviceAccountName: myelin-app-myelin
 
-  volume:
-    name: axon-store
-    flexVolume:
-      driver: ceph.rook.io/rook
-      fsType: ceph
-      options:
-        fsName: myfs # name of the filesystem specified in the filesystem CRD.
-        clusterNamespace: myelin-app # namespace where the Rook cluster is deployed
+  artifacts:
+    - name: rec-source
+      path: /src
+      git:
+        repo: https://github.com/myelinio/myelin-examples.git
+        revision: master
+
+  volumeClaimTemplate:
+    metadata:
+      name: axon-store
+    spec:
+      storageClassName: nfs
+      accessModes: ["ReadWriteMany"]
+      resources:
+        requests:
+          storage: 1Gi
 
   tasks:
 
     - name: DataPrep
       container:
-        image: myelinio/two-stage-vae-train-cpu:v0.1.0
+        imageBuild:
+          repositoryName: vae-dataprep
+          artifact: rec-source
+          buildLocation: /src/two-stage-vae
+          dockerfile:
+            path: Dockerfile.preprocess
 
     - name: Train
       train:
-        image: myelinio/two-stage-vae-train-cpu:v0.1.4
+        imageBuild:
+          repositoryName: vae-train
+          artifact: rec-source
+          buildLocation: /src/two-stage-vae
+          dockerfile:
+            path: Dockerfile.preprocess
         lossMetric: "fid_gen2"
         lossMetricSelector: greater
         hpTuning:
@@ -42,11 +60,9 @@ spec:
                 log: true
 
   sensors:
-
     - name: TrainOnStart
       tasks:
         - resourceExecutor:
             task: DataPrep
-
         - trainer:
             task: Train
