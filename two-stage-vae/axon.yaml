@@ -27,21 +27,11 @@ spec:
 
     - name: DataPrep
       container:
-        imageBuild:
-          repositoryName: vae-dataprep
-          artifact: rec-source
-          buildLocation: /src/two-stage-vae
-          dockerfile:
-            path: Dockerfile.preprocess
+        image: myelinio/two-stage-vae-train-cpu:v0.1.0
 
     - name: Train
       train:
-        imageBuild:
-          repositoryName: vae-train
-          artifact: rec-source
-          buildLocation: /src/two-stage-vae
-          dockerfile:
-            path: Dockerfile.preprocess
+        image: myelinio/two-stage-vae-train-cpu:v0.1.4
         lossMetric: "fid_gen2"
         lossMetricSelector: greater
         hpTuning:
