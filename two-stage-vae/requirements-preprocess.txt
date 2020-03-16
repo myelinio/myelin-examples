@@ -1,4 +1,0 @@
-scipy
-numpy
-python-mnist
-Pillow
