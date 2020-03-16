@@ -1,7 +1,7 @@
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
-  name: ml-test
+  name: ml-test-v2
 spec:
 
   serviceAccountName: myelin-app-myelin
@@ -33,7 +33,7 @@ spec:
 
   tasks:
 
-    - name: DataPrepTest
+    - name: DataPrepTest1
       container:
         image: gcr.io/myelin-development/preprocess-myelin-test:test
         env:
@@ -44,7 +44,18 @@ spec:
           - name: PARAM3
             value: "{{workflow.parameters.param3}}"
 
-    - name: TrainMyelinTest
+    - name: DataPrepTest2
+      container:
+        image: gcr.io/myelin-development/preprocess-myelin-test:test
+        env:
+          - name: PARAM1
+            value: "{{workflow.parameters.param1}}"
+          - name: PARAM2
+            value: "{{workflow.parameters.param2}}"
+          - name: PARAM3
+            value: "{{workflow.parameters.param3}}"
+
+    - name: TrainMyelinTest1
       train:
         imageBuild:
           repositoryName: train-myelin-test
@@ -60,7 +71,24 @@ spec:
           - name: PARAM3
             value: "{{workflow.parameters.param3}}"
 
-    - name: DeployMyelinTest
+    - name: TrainMyelinTest2
+      train:
+        imageBuild:
+          repositoryName: train-myelin-test
+          artifact: rec-source
+          buildLocation: /src/tests/test-demo
+          dockerfile:
+            path: Dockerfile.train
+        env:
+          - name: PARAM1
+            value: "{{workflow.parameters.param1}}"
+          - name: PARAM2
+            value: "{{workflow.parameters.param2}}"
+          - name: PARAM3
+            value: "{{workflow.parameters.param3}}"
+
+
+    - name: DeployMyelinTest1
       deploy:
         imageBuild:
           repositoryName: deploy-myelin-test
@@ -80,21 +108,50 @@ spec:
         endpointType: REST
         endpointRestType: Multipart
 
+    - name: DeployMyelinTest2
+      deploy:
+        imageBuild:
+          repositoryName: deploy-myelin-test
+          artifact: rec-source
+          buildLocation: /src/
+          s2i:
+            contextDir: tests/test-demo
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
+        env:
+          - name: PARAM1
+            value: "{{workflow.parameters.param1}}"
+          - name: PARAM2
+            value: "{{workflow.parameters.param2}}"
+          - name: PARAM3
+            value: "{{workflow.parameters.param3}}"
+
+        endpointType: REST
+        endpointRestType: Multipart
+
+
   sensors:
 
     - name: TrainOnStart
       tasks:
         - resourceExecutor:
-            task: DataPrepTest
+            task: DataPrepTest1
         - trainer:
-            task: TrainMyelinTest
+            task: TrainMyelinTest1
+        - resourceExecutor:
+            task: DataPrepTest2
+        - trainer:
+            task: TrainMyelinTest2
 
     - name: DeploymentDecisionMaker
       triggers:
-        - name: TestTrainingComplete
+        - name: TestTrainingComplete1
           type: Lifecycle
           condition: Succeeded
-          task: TrainMyelinTest
+          task: TrainMyelinTest1
+        - name: TestTrainingComplete2
+          type: Lifecycle
+          condition: Succeeded
+          task: TrainMyelinTest2
       tasks:
         - deployer:
             name: deployer
@@ -111,17 +168,17 @@ spec:
                 routingStrategy:
                   - destinations:
                       - destinationName: myelin-test1
-                        weight: 100
+                        weight: 80
                       - destinationName: myelin-test2
-                        weight: 0
+                        weight: 20
                 backendModels:
                   - name: myelin-test1
-                    trainer: TrainMyelinTest
-                    deployer: DeployMyelinTest
+                    trainer: TrainMyelinTest1
+                    deployer: DeployMyelinTest1
                     modelSelectionStrategy: "best"
                   - name: myelin-test2
-                    trainer: TrainMyelinTest
-                    deployer: DeployMyelinTest
+                    trainer: TrainMyelinTest2
+                    deployer: DeployMyelinTest2
                     modelSelectionStrategy: "best"
             routes:
               - path: /predict
@@ -140,6 +197,10 @@ spec:
           condition: "{{deploy_accuracy}} < 0.90"
       tasks:
         - resourceExecutor:
-            task: DataPrepTest
+            task: DataPrepTest1
         - trainer:
-            task: TrainMyelinTest
+            task: TrainMyelinTest1
+        - resourceExecutor:
+            task: DataPrepTest2
+        - trainer:
+            task: TrainMyelinTest2
