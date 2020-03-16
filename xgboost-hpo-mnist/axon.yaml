@@ -32,7 +32,7 @@ spec:
         imageBuild:
           repositoryName: xgboost_mnist
           artifact: rec-source
-          buildLocation: /src/xgboost_hpo_mnist
+          buildLocation: /src/xgboost-hpo-mnist
           dockerfile:
             path: Dockerfile
         lossMetric: "accuracy"
@@ -93,8 +93,8 @@ spec:
           artifact: rec-source
           buildLocation: /src/
           s2i:
-            contextDir: xgboost_hpo_mnist
-            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
+            contextDir: xgboost-hpo-mnist
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.5
 
         endpointType: REST
         endpointRestType: Multipart
