@@ -12,3 +12,5 @@ PROXY_URL=${URL}predict
 DATA='{"data": {"ndarray": [[3, 4, 100], [4, 3, 1]]}}'
 curl -v -d "${DATA}" "${PROXY_URL}"
 ``` 
+
+This returns a combined prediction of the three models.
