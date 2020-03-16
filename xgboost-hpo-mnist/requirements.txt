@@ -1,2 +1,2 @@
-scikit-learn
-myelin
+scikit-learn==0.20.0
+myelin==0.0.10
