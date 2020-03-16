@@ -5,9 +5,9 @@ import myelin.admin
 
 model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
 task_id = os.environ.get('TASK_ID')
-# train_task = myelin.admin.task(task_name="TrainMyelinTest")
-# print(train_task)
-# assert train_task.model_path == model_path
+train_task = myelin.admin.task(task_name="TrainMyelinTest")
+print(train_task)
+assert train_task.model_path == model_path
 
 
 class DeployModel(object):
