@@ -1,6 +1,6 @@
 import argparse
 
-from sklearn.externals import joblib
+from joblib import dump
 from sklearn import datasets, metrics
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.utils import shuffle
@@ -74,7 +74,7 @@ class GradientBoostingWorker:
         if not os.path.exists(model_path):
             os.makedirs(model_path)
 
-        joblib.dump(classifier, os.path.join(model_path, 'sk.pkl'))
+        dump(classifier, os.path.join(model_path, 'sk.pkl'))
 
         myelin.metric.publish_result(test_accuracy, "accuracy")
 

@@ -1,7 +1,7 @@
 import os
 import pickle
 from myelin import metric
-from sklearn.externals import joblib
+from joblib import load
 
 model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
 
@@ -9,7 +9,7 @@ model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
 class DeployModel(object):
 
 	def __init__(self):
-		self.model = joblib.load(open(os.path.join(model_path, 'sk.pkl'), 'rb'))
+		self.model = load(os.path.join(model_path, 'sk.pkl'))
 		self.c = metric.MetricClient()
 
 	def predict(self, X, feature_names):
