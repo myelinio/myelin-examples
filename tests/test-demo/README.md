@@ -1,4 +1,4 @@
-# GPT2 demo
+# Test example
 
 This is a simple example to train a scikit-learn model deploy it as two separate models with
 weighed routing. 
