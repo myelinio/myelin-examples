@@ -65,7 +65,6 @@ spec:
         - trainer:
             task: TrainMyelinRecommender
 
-
     - name: DeploymentDecisionMaker
       triggers:
         - name: mnistTrainingComplete
