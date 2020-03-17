@@ -4,7 +4,6 @@ from joblib import dump
 from sklearn import datasets, metrics
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.utils import shuffle
-from myelin.metric import MetricClient
 import myelin.metric
 
 import logging
