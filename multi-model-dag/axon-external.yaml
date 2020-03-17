@@ -200,7 +200,7 @@ spec:
           task: TrainModel3
       tasks:
         - deployer:
-            name: graph-deployer
+            name: graph-deployer123
             rolloutSpec:
               - destinations:
                   - destinationIndex: 0
@@ -286,7 +286,7 @@ spec:
           task: TrainModel4
       tasks:
         - deployer:
-            name: graph-deployer
+            name: graph-deployer4
             rolloutSpec:
               - destinations:
                   - destinationIndex: 0
