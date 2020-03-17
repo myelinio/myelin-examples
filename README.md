@@ -8,6 +8,6 @@ This repository contains a collection of models demonstrating some of the main f
     - Workloads -> Axons -> Create (copy and paste the axon.yaml from the specific folder)
 
 - CLI:
-```shell script
-myelin submit axon.yaml -n $NAMESPACE
-```
+    ```shell script
+    myelin submit axon.yaml -n $NAMESPACE
+    ```
