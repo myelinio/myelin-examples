@@ -28,7 +28,7 @@ spec:
     - name: DataPrepMyelinRecommender
       container:
         imageBuild:
-          repositoryName: preprocess-myelin-recommender
+          repositoryName: preprocess-rf-myelin-recommender
           artifact: rec-source
           buildLocation: /src/recommender-rf-demo
           dockerfile:
@@ -38,7 +38,7 @@ spec:
     - name: TrainMyelinRecommender
       train:
         imageBuild:
-          repositoryName: train-myelin-recommender
+          repositoryName: train-rf-myelin-recommender
           artifact: rec-source
           buildLocation: /src/recommender-rf-demo
           dockerfile:
@@ -49,7 +49,7 @@ spec:
         endpointType: REST
         endpointRestType: Multipart
         imageBuild:
-          repositoryName: deploy-myelin-recommender
+          repositoryName: deploy-rf-myelin-recommender
           artifact: rec-source
           buildLocation: /src/
           s2i:
