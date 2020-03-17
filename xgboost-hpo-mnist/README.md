@@ -16,7 +16,7 @@ DATA='{"data": {"ndarray":  [[ 0.0,  0.0,  1.0, 12.0,  5.0,  0.0,  0.0,  0.0,
                                0.0,  4.0, 16.0,  3.0,  0.0, 11.0, 10.0,  0.0,
                                0.0,  0.0, 13.0, 12.0,  8.0, 14.0,  6.0,  0.0,
                                0.0,  0.0,  3.0, 10.0, 16.0, 12.0,  1.0,  0.0]]}}'
-curl -v -d "${DATA}" "${PROXY_URL}"
+curl -d "${DATA}" "${PROXY_URL}"
 ```
 
 This sends a pixel representation for the digit and the model return a prediction of what number it might be.

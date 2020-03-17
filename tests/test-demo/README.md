@@ -10,5 +10,5 @@ NAMESPACE=myelin
 URL=$(myelin endpoint -n $NAMESPACE ml-test -o json | jq -r '.[0].modelStable.publicUrl')
 PROXY_URL=${URL}predict
 DATA='{"data": {"ndarray": [[1,2,3],[5,6,7]]}}'
-curl -v -d "${DATA}" "${PROXY_URL}"
+curl -d "${DATA}" "${PROXY_URL}"
 ```

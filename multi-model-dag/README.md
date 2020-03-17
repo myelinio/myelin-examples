@@ -10,7 +10,7 @@ NAMESPACE=myelin
 URL=$(myelin endpoint -n $NAMESPACE multi-model-graph -o json | jq -r '.[0].modelStable.publicUrl')
 PROXY_URL=${URL}predict
 DATA='{"data": {"ndarray": [[3, 4, 100], [4, 3, 1]]}}'
-curl -v -d "${DATA}" "${PROXY_URL}"
+curl -d "${DATA}" "${PROXY_URL}"
 ``` 
 
 This returns a combined prediction of the three models.
