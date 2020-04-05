@@ -29,7 +29,7 @@ spec:
   tasks:
 
     - name: TfJob
-      tfJob:
+      train:
         imageBuild:
           repositoryName: train-myelin-test
           artifact: rec-source
@@ -53,6 +53,9 @@ spec:
                 spec:
                   containers:
                     - name: tensorflow
+        metrics:
+          - name: test_accuracy
+            type: Gauge
 
 
   sensors:
