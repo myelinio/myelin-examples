@@ -7,7 +7,7 @@ logging.basicConfig(format='%(asctime)s.%(msecs)03d %(levelname)s {%(module)s} [
 logger = logging.getLogger(__name__)
 
 
-class DeepMnist(object):
+class DeployModel(object):
     def __init__(self):
         self.class_names = ["class:{}".format(str(i)) for i in range(10)]
         self.sess = tf.Session()
