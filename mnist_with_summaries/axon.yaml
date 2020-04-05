@@ -1,7 +1,7 @@
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
-  name: ml-test-tfjob
+  name: mnist-tfjob
 spec:
 
   serviceAccountName: myelin-app-myelin
@@ -30,13 +30,13 @@ spec:
 
     - name: TfJob
       tfJob:
-#        imageBuild:
-#          repositoryName: train-myelin-test
-#          artifact: rec-source
-#          buildLocation: /src/tests/test-demo
-#          dockerfile:
-#            path: Dockerfile.train
-        image: myelinio/tf-dist-mnist-test:1.0
+        imageBuild:
+          repositoryName: train-myelin-test
+          artifact: rec-source
+          buildLocation: /src/mnist_with_summaries
+          dockerfile:
+            path: Dockerfile
+#        image: myelinio/tf-dist-mnist-test:1.0
         tfJobSpec:
           tfReplicaSpecs:
             PS:
@@ -57,7 +57,7 @@ spec:
 
   sensors:
 
-    - name: TrainOnStart
+    - name: TfJobTrain
       tasks:
         - resourceExecutor:
             task: TfJob
