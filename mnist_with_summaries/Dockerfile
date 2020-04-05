@@ -14,7 +14,7 @@
 
 FROM tensorflow/tensorflow:1.15.2-py3
 
-COPY requirements.txt requirements.txt
+COPY requirements.train.txt requirements.txt
 RUN pip install -r  requirements.txt
 
 ADD . /var/tf_mnist

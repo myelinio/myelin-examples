@@ -7,7 +7,7 @@ spec:
   serviceAccountName: myelin-app-myelin
 
   artifacts:
-    - name: rec-source
+    - name: sources
       path: /src
       git:
         repo: git@github.com:myelinio/myelin-examples.git
@@ -18,7 +18,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store1
+      name: axon-store
     spec:
       storageClassName: nfs
       accessModes: ["ReadWriteMany"]
@@ -28,15 +28,15 @@ spec:
 
   tasks:
 
-    - name: TfJob
+    - name: TfJobTrain
       train:
         imageBuild:
-          repositoryName: train-myelin-test
-          artifact: rec-source
+          repositoryName: tf-dist-mnist-train
+          artifact: sources
           buildLocation: /src/mnist_with_summaries
           dockerfile:
             path: Dockerfile
-#        image: myelinio/tf-dist-mnist-test:1.0
+#        image: myelinio/tf-dist-mnist-train-test:1.0
         tfJobSpec:
           tfReplicaSpecs:
             PS:
@@ -57,10 +57,59 @@ spec:
           - name: test_accuracy
             type: Gauge
 
+    - name: TfModel
+      deploy:
+        imageBuild:
+          repositoryName: tf-dist-mnist-deploy
+          artifact: sources
+          buildLocation: /src/
+          s2i:
+            contextDir: mnist_with_summaries
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
+        endpointType: REST
+        endpointRestType: Multipart
+
 
   sensors:
-
     - name: TfJobTrain
       tasks:
         - trainer:
-            task: TfJob
+            task: TfJobTrain
+
+    - name: MnistDeploy
+      triggers:
+        - name: TestTrainingComplete
+          type: Lifecycle
+          condition: Succeeded
+          task: TfJobTrain
+      tasks:
+        - deployer:
+            name: deployer
+            rolloutSpec:
+              - destinations:
+                  - destinationIndex: 0
+                    weight: 50
+                  - destinationIndex: 1
+                    weight: 50
+            replicas: 1
+            models:
+              - name: MnistClassifier
+                modelSelectionStrategy: "best"
+                routingStrategy:
+                  - destinations:
+                      - destinationName: tf-model
+                        weight: 100
+                backendModels:
+                  - name: tf-model
+                    trainer: TfJobTrain
+                    deployer: TfModel
+                    modelSelectionStrategy: "best"
+            routes:
+              - path: /predict
+                dag:
+                  - model: MnistClassifier
+                    path: /predict
+              - path: /send-feedback
+                dag:
+                  - model: MnistClassifier
+                    path: /send-feedback
