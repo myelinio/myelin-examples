@@ -1,0 +1,63 @@
+apiVersion: myelinproj.io/v1alpha1
+kind: Axon
+metadata:
+  name: ml-test-tfjob
+spec:
+
+  serviceAccountName: myelin-app-myelin
+
+  artifacts:
+    - name: rec-source
+      path: /src
+      git:
+        repo: git@github.com:myelinio/myelin-examples.git
+        revision: master
+        sshPrivateKeySecret:
+          name: github-creds
+          key: ssh-private-key
+
+  volumeClaimTemplate:
+    metadata:
+      name: axon-store1
+    spec:
+      storageClassName: nfs
+      accessModes: ["ReadWriteMany"]
+      resources:
+        requests:
+          storage: 1Gi
+
+  tasks:
+
+    - name: TfJob
+      tfJob:
+#        imageBuild:
+#          repositoryName: train-myelin-test
+#          artifact: rec-source
+#          buildLocation: /src/tests/test-demo
+#          dockerfile:
+#            path: Dockerfile.train
+        image: myelinio/tf-dist-mnist-test:1.0
+        tfJobSpec:
+          tfReplicaSpecs:
+            PS:
+              replicas: 2
+              restartPolicy: Never
+              template:
+                spec:
+                  containers:
+                    - name: tensorflow
+            Worker:
+              replicas: 4
+              restartPolicy: Never
+              template:
+                spec:
+                  containers:
+                    - name: tensorflow
+
+
+  sensors:
+
+    - name: TrainOnStart
+      tasks:
+        - resourceExecutor:
+            task: TfJob
