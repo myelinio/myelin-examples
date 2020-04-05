@@ -38,6 +38,7 @@ spec:
             path: Dockerfile
 #        image: myelinio/tf-dist-mnist-train-test:1.0
         tfJobSpec:
+          cleanPodPolicy: None
           tfReplicaSpecs:
             PS:
               replicas: 2

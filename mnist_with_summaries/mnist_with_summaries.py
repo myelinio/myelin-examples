@@ -176,8 +176,10 @@ def train():
                 summary, _ = sess.run([merged, train_step], feed_dict=feed_dict(True))
                 train_writer.add_summary(summary, i)
 
-        saver = tf.train.Saver()
-        saver.save(sess, FLAGS.log_dir + '/model/model')
+    saver = tf.train.Saver()
+    model_dir = os.path.join(FLAGS.log_dir, '/model/model')
+    print('saving model to %s, data_path: %s' % (model_dir, os.getenv('MODEL_PATH', '/tmp')))
+    saver.save(sess, model_dir)
 
     train_writer.close()
     test_writer.close()
