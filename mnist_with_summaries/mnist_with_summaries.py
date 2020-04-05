@@ -33,7 +33,9 @@ import myelin.metric
 
 FLAGS = None
 
-
+def get_log_dir():
+    return os.path.join(os.getenv('MODEL_PATH', '/tmp'),
+                             'tensorflow/mnist/logs/mnist_with_summaries')
 def train():
     # Import data
     mnist = input_data.read_data_sets(FLAGS.data_dir,
@@ -138,8 +140,8 @@ def train():
     # Merge all the summaries and write them out to
     # /tmp/tensorflow/mnist/logs/mnist_with_summaries (by default)
     merged = tf.summary.merge_all()
-    train_writer = tf.summary.FileWriter(FLAGS.log_dir + '/train', sess.graph)
-    test_writer = tf.summary.FileWriter(FLAGS.log_dir + '/test')
+    train_writer = tf.summary.FileWriter(get_log_dir() + '/train', sess.graph)
+    test_writer = tf.summary.FileWriter(get_log_dir() + '/test')
     tf.global_variables_initializer().run()
 
     # Train the model, and also write summaries.
@@ -177,8 +179,8 @@ def train():
                 train_writer.add_summary(summary, i)
 
     saver = tf.train.Saver()
-    model_dir = os.path.join(FLAGS.log_dir, '/model/model')
-    print('saving model to %s, data_path: %s' % (model_dir, os.getenv('MODEL_PATH', '/tmp')))
+    model_dir = os.path.join(get_log_dir(), '/model/model')
+    print('saving model to %s' % model_dir)
     saver.save(sess, model_dir)
 
     train_writer.close()
@@ -187,9 +189,9 @@ def train():
 
 
 def main(_):
-    if tf.gfile.Exists(FLAGS.log_dir):
-        tf.gfile.DeleteRecursively(FLAGS.log_dir)
-    tf.gfile.MakeDirs(FLAGS.log_dir)
+    if tf.gfile.Exists(get_log_dir()):
+        tf.gfile.DeleteRecursively(get_log_dir())
+    tf.gfile.MakeDirs(get_log_dir())
     train()
 
 
@@ -219,4 +221,5 @@ if __name__ == '__main__':
                              'tensorflow/mnist/logs/mnist_with_summaries'),
         help='Summaries log directory')
     FLAGS, unparsed = parser.parse_known_args()
+    print("FLAGS: %s" % FLAGS)
     tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
