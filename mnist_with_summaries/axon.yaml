@@ -1,7 +1,7 @@
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
-  name: mnist-tfjob
+  name: mnist-tfjob1
 spec:
 
   serviceAccountName: myelin-app-myelin
@@ -30,6 +30,7 @@ spec:
 
     - name: TfJobTrain
       train:
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/tf-dist-mnist-train:1.0.1-242-geed8940
         imageBuild:
           repositoryName: tf-dist-mnist-train
           artifact: sources
