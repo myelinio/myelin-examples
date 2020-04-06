@@ -33,6 +33,7 @@ import myelin.metric
 
 FLAGS = None
 
+
 def get_log_dir():
     return os.path.join(os.getenv('MODEL_PATH', '/tmp'),
                              'tensorflow/mnist/logs/mnist_with_summaries')
@@ -179,7 +180,7 @@ def train():
                 train_writer.add_summary(summary, i)
 
     saver = tf.train.Saver()
-    model_dir = os.path.join(get_log_dir(), '/model/model')
+    model_dir = os.path.join(get_log_dir(), 'model/model')
     print('saving model to %s' % model_dir)
     saver.save(sess, model_dir)
 

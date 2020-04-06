@@ -28,7 +28,7 @@ class DeployModel(object):
 if __name__ == '__main__':
     from tensorflow.examples.tutorials.mnist import input_data
 
-    d = DeepMnist()
+    d = DeployModel()
     data_dir = os.path.join(os.getenv('DATA_PATH', '/tmp'), 'tensorflow/mnist/logs/mnist_with_summaries/train')
     mnist = input_data.read_data_sets(data_dir)
     batch = mnist.train.next_batch(10)
