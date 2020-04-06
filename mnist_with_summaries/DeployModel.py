@@ -27,10 +27,24 @@ class DeployModel(object):
 
 if __name__ == '__main__':
     from tensorflow.examples.tutorials.mnist import input_data
+    import json
+    import requests
+    import numpy as np
 
-    d = DeployModel()
+    #
     data_dir = os.path.join(os.getenv('DATA_PATH', '/tmp'), 'tensorflow/mnist/logs/mnist_with_summaries/train')
     mnist = input_data.read_data_sets(data_dir)
     batch = mnist.train.next_batch(10)
-    x_train = batch[0]
-    print(d.predict(x_train, {}), batch[1])
+    # d = DeployModel()
+    # x_train = batch[0]
+    # print(d.predict(x_train, {}), batch[1])
+    url = "http://localhost:8080/predict"
+    session = requests.session()
+    response = session.post(url, json={"data": {"ndarray": batch[0].tolist()}}, headers={'User-Agent': 'test'})
+
+    print("response.status_code: ", response.status_code)
+    print("response.text", response.text)
+    json_data = json.loads(response.text)
+    prediction = json_data["data"]["ndarray"]
+
+    print("predicted class: %s" % np.argmax(np.array(prediction)))

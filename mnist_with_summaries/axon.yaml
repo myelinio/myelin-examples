@@ -18,7 +18,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store1
+      name: axon-store
     spec:
       storageClassName: nfs
       accessModes: ["ReadWriteMany"]
@@ -36,7 +36,6 @@ spec:
           buildLocation: /src/mnist_with_summaries
           dockerfile:
             path: Dockerfile
-#        image: myelinio/tf-dist-mnist-train-test:1.0
         tfJobSpec:
           cleanPodPolicy: None
           tfReplicaSpecs:
