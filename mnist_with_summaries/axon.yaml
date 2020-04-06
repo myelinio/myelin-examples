@@ -53,6 +53,21 @@ spec:
                 spec:
                   containers:
                     - name: tensorflow
+        lossMetric: "test_accuracy"
+        hpTuning:
+          concurrency: 2
+          minBudget: 10
+          maxBudget: 30
+          numIteration: 2
+          optimiser: HyperBand
+          params:
+            - type: UniformInteger
+              name: batch_size
+              numerical:
+                lower: "10"
+                upper: "100"
+                default_value: "20"
+                log: false
         metrics:
           - name: test_accuracy
             type: Gauge

@@ -156,7 +156,7 @@ def train():
             k = 1.0
         return {x: xs, y_: ys, keep_prob: k}
 
-    for i in range(FLAGS.max_steps):
+    for i in range(FLAGS.budget):
         if i % 10 == 0:  # Record summaries and test-set accuracy
             summary, acc = sess.run([merged, accuracy], feed_dict=feed_dict(False))
             test_writer.add_summary(summary, i)
@@ -198,7 +198,8 @@ if __name__ == '__main__':
     parser.add_argument('--fake_data', nargs='?', const=True, type=bool,
                         default=False,
                         help='If true, uses fake data for unit testing.')
-    parser.add_argument('--max_steps', type=int, default=10,
+    parser.add_argument('--config_id', type=str)
+    parser.add_argument('--budget', type=int, default=10,
                         help='Number of steps to run trainer.')
     parser.add_argument('--learning_rate', type=float, default=0.001,
                         help='Initial learning rate')
