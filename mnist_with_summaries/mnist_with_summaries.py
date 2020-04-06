@@ -30,6 +30,7 @@ import tensorflow as tf
 
 from tensorflow.examples.tutorials.mnist import input_data
 import myelin.metric
+import json
 
 FLAGS = None
 
@@ -183,9 +184,16 @@ def train():
 
     train_writer.close()
     test_writer.close()
-    print('Reporting loss: %s' % acc)
-    myelin.metric.publish_result(acc, "test_accuracy")
+    if is_first_master():
+        print('Reporting loss: %s' % acc)
+        myelin.metric.publish_result(acc, "test_accuracy")
 
+
+def is_first_master():
+    tf_config = os.environ["TF_CONFIG"]
+    task_type = json.loads(tf_config)['task']['type']
+    task_index = json.loads(tf_config)['task']['index']
+    return task_type == "ps" and task_index == 0
 
 def main(_):
     if tf.gfile.Exists(FLAGS.log_dir):
