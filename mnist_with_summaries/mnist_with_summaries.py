@@ -183,6 +183,7 @@ def train():
 
     train_writer.close()
     test_writer.close()
+    print('Reporting loss: %s' % acc)
     myelin.metric.publish_result(acc, "test_accuracy")
 
 
