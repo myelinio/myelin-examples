@@ -30,11 +30,10 @@ spec:
 
     - name: TfJobTrain
       train:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/tf-dist-mnist-train:1.0.1-243-gf0285cf
         imageBuild:
           repositoryName: tf-dist-mnist-train
           artifact: sources
-          buildLocation: /src/mnist_with_summaries
+          buildLocation: /src/mnist-with-summaries
           dockerfile:
             path: Dockerfile
         tfJobSpec:
@@ -82,7 +81,7 @@ spec:
           artifact: sources
           buildLocation: /src/
           s2i:
-            contextDir: mnist_with_summaries
+            contextDir: mnist-with-summaries
             builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
         endpointType: REST
         endpointRestType: Multipart
