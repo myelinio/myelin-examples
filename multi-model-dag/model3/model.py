@@ -16,7 +16,7 @@ class DeployModel3(object):
         x_model1 = features_dict['DeployModel1']
         x_model2 = features_dict['DeployModel2']
         x_input = features_dict['INPUT']
-        X = np.concatenate([[x_model1], [x_model2], x_input], axis=1)
+        X = np.concatenate([np.transpose([x_model1]), np.transpose([x_model2]), x_input], axis=1)
         predictions = self.model.predict(X)
         return predictions
 

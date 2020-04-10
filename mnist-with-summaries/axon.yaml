@@ -1,0 +1,132 @@
+apiVersion: myelinproj.io/v1alpha1
+kind: Axon
+metadata:
+  name: mnist-tfjob1
+spec:
+
+  serviceAccountName: myelin-app-myelin
+
+  artifacts:
+    - name: sources
+      path: /src
+      git:
+        repo: git@github.com:myelinio/myelin-examples.git
+        revision: master
+        sshPrivateKeySecret:
+          name: github-creds
+          key: ssh-private-key
+
+  volumeClaimTemplate:
+    metadata:
+      name: axon-store
+    spec:
+      storageClassName: nfs
+      accessModes: ["ReadWriteMany"]
+      resources:
+        requests:
+          storage: 1Gi
+
+  tasks:
+
+    - name: TfJobTrain
+      train:
+        imageBuild:
+          repositoryName: tf-dist-mnist-train
+          artifact: sources
+          buildLocation: /src/mnist-with-summaries
+          dockerfile:
+            path: Dockerfile
+        tfJobSpec:
+          cleanPodPolicy: None
+          tfReplicaSpecs:
+            PS:
+              replicas: 2
+              restartPolicy: Never
+              template:
+                spec:
+                  containers:
+                    - name: tensorflow
+            Worker:
+              replicas: 4
+              restartPolicy: Never
+              template:
+                spec:
+                  containers:
+                    - name: tensorflow
+        lossMetric: "test_accuracy"
+        lossMetricSelector: "greater"
+
+        hpTuning:
+          concurrency: 2
+          minBudget: 10
+          maxBudget: 30
+          numIteration: 2
+          optimiser: HyperBand
+          params:
+            - type: UniformInteger
+              name: batch_size
+              numerical:
+                lower: "10"
+                upper: "100"
+                default_value: "20"
+                log: false
+        metrics:
+          - name: test_accuracy
+            type: Gauge
+
+    - name: TfModel
+      deploy:
+        imageBuild:
+          repositoryName: tf-dist-mnist-deploy
+          artifact: sources
+          buildLocation: /src/
+          s2i:
+            contextDir: mnist-with-summaries
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
+        endpointType: REST
+        endpointRestType: Multipart
+
+
+  sensors:
+    - name: TfJobTrain
+      tasks:
+        - trainer:
+            task: TfJobTrain
+
+    - name: MnistDeploy
+      triggers:
+        - name: TestTrainingComplete
+          type: Lifecycle
+          condition: Succeeded
+          task: TfJobTrain
+      tasks:
+        - deployer:
+            name: deployer
+            rolloutSpec:
+              - destinations:
+                  - destinationIndex: 0
+                    weight: 50
+                  - destinationIndex: 1
+                    weight: 50
+            replicas: 1
+            models:
+              - name: MnistClassifier
+                modelSelectionStrategy: "best"
+                routingStrategy:
+                  - destinations:
+                      - destinationName: tf-model
+                        weight: 100
+                backendModels:
+                  - name: tf-model
+                    trainer: TfJobTrain
+                    deployer: TfModel
+                    modelSelectionStrategy: "best"
+            routes:
+              - path: /predict
+                dag:
+                  - model: MnistClassifier
+                    path: /predict
+              - path: /send-feedback
+                dag:
+                  - model: MnistClassifier
+                    path: /send-feedback

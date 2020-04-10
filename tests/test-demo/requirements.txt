@@ -1,3 +1,3 @@
-scikit-learn>=0.18
-pandas>=0.22.0
-myelin
+scikit-learn==0.22.*
+pandas==1.0.*
+myelin==0.0.37
