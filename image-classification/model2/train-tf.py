@@ -178,4 +178,5 @@ def main_function(num_epochs=100):
 
 
 if __name__ == '__main__':
-	main_function(num_epochs=10)
+	epoch = int(os.environ.get('EPOCH'))
+	main_function(num_epochs=epoch)

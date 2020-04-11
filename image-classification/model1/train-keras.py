@@ -10,7 +10,7 @@ import numpy as np
 
 batch_size = 32
 num_classes = 10
-epochs = 10
+epochs = int(os.environ.get('EPOCH'))
 data_augmentation = True
 num_predictions = 20
 
