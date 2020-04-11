@@ -43,6 +43,15 @@ spec:
           dockerfile:
             path: Dockerfile.train
 
+    - name: TrainModel2
+      train:
+        imageBuild:
+          repositoryName: train-img-class
+          artifact: img-source
+          buildLocation: /src/image-classification/model2
+          dockerfile:
+            path: Dockerfile.train
+
     - name: DeployModel1
       deploy:
         imageBuild:
@@ -55,6 +64,18 @@ spec:
         endpointType: REST
         endpointRestType: Multipart
 
+    - name: DeployModel2
+      deploy:
+        imageBuild:
+          repositoryName: deploy-img2-class
+          artifact: img-source
+          buildLocation: /src/image-classification/
+          s2i:
+            contextDir: model2
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
+        endpointType: REST
+        endpointRestType: Multipart
+
   sensors:
 
     - name: TrainOnStart
@@ -63,13 +84,19 @@ spec:
             task: DataPrep
         - trainer:
             task: TrainModel1
+        - trainer:
+            task: TrainModel2
 
     - name: DeploymentDecisionMaker
       triggers:
-        - name: TestTrainingComplete
+        - name: TestTrainingComplete1
           type: Lifecycle
           condition: Succeeded
           task: TrainModel1
+        - name: TestTrainingComplete2
+          type: Lifecycle
+          condition: Succeeded
+          task: TrainModel2
       tasks:
         - deployer:
             name: deployer
@@ -86,11 +113,17 @@ spec:
                 routingStrategy:
                   - destinations:
                       - destinationName: model1
-                        weight: 100
+                        weight: 50
+                      - destinationName: model2
+                        weight: 50
                 backendModels:
                   - name: model1
                     trainer: TrainModel1
                     deployer: DeployModel1
+                    modelSelectionStrategy: "best"
+                  - name: model2
+                    trainer: TrainModel2
+                    deployer: DeployModel2
                     modelSelectionStrategy: "best"
             routes:
               - path: /predict

@@ -71,14 +71,14 @@ def build_model(input_val, w, b):
 	out = tf.nn.bias_add(tf.matmul(dense1, w['w5']), b['b5'])
 
 	# used after training the CNN
-	softmax = tf.nn.softmax(out)
+	softmax = tf.nn.softmax(out, name="prediction")
 
 	return out, softmax
 
 
 def main_function(num_epochs=100):
-	x = tf.placeholder(tf.float32, [None, 32, 32, 3])
-	y = tf.placeholder(tf.int32, [None, 10])
+	x = tf.placeholder(tf.float32, [None, 32, 32, 3], name="input")
+	y = tf.placeholder(tf.int32, [None, 10], name="output")
 
 	# initialize weights for every different layers
 	weights = {
