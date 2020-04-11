@@ -7,9 +7,9 @@ spec:
   serviceAccountName: myelin-app-myelin
 
   parameters:
-    - name: epoch_model1
+    - name: epoch-model1
       value: "10"
-    - name: epoch_model2
+    - name: epoch-model2
       value: "10"
 
   artifacts:
@@ -44,7 +44,7 @@ spec:
       train:
         env:
           - name: EPOCH
-            value: "{{workflow.parameters.epoch_model1}}"
+            value: "{{workflow.parameters.epoch-model1}}"
         imageBuild:
           repositoryName: train-img-class
           artifact: img-source
@@ -56,7 +56,7 @@ spec:
       train:
         env:
           - name: EPOCH
-            value: "{{workflow.parameters.epoch_model2}}"
+            value: "{{workflow.parameters.epoch-model2}}"
         imageBuild:
           repositoryName: train-img-class
           artifact: img-source
@@ -157,3 +157,5 @@ spec:
             task: DataPrep
         - trainer:
             task: TrainModel1
+        - trainer:
+            task: TrainModel2
