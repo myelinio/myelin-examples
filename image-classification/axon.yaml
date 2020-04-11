@@ -8,9 +8,9 @@ spec:
 
   parameters:
     - name: epoch_model1
-      value: 10
+      value: "10"
     - name: epoch_model2
-      value: 10
+      value: "10"
 
   artifacts:
     - name: img-source
