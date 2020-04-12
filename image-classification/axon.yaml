@@ -46,7 +46,7 @@ spec:
           - name: EPOCH
             value: "{{workflow.parameters.epoch-model1}}"
         imageBuild:
-          repositoryName: train-img-class
+          repositoryName: train-img1-class
           artifact: img-source
           buildLocation: /src/image-classification/model1
           dockerfile:
@@ -58,7 +58,7 @@ spec:
           - name: EPOCH
             value: "{{workflow.parameters.epoch-model2}}"
         imageBuild:
-          repositoryName: train-img-class
+          repositoryName: train-img2-class
           artifact: img-source
           buildLocation: /src/image-classification/model2
           dockerfile:
