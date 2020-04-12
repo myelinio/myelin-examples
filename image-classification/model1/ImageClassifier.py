@@ -18,7 +18,8 @@ class ImageClassifier(object):
 		return predictions
 
 	def send_feedback(self, features, feature_names, reward, truth):
-		res = self.c.post_update("image_classifer_accuracy", reward)
+		self.c.post_update("image_classifer_accuracy", reward)
+		res = self.c.post_update("image_classifer_accuracy", reward, job_name=axon_name)
 		print("Posted metric with status code: %s" % res.status_code)
 
 	def tags(self):
