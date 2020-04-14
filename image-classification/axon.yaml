@@ -125,9 +125,9 @@ spec:
                 routingStrategy:
                   - destinations:
                       - destinationName: model1
-                        weight: 50
+                        weight: 80
                       - destinationName: model2
-                        weight: 50
+                        weight: 20
                 backendModels:
                   - name: model1
                     trainer: TrainModel1
@@ -151,7 +151,7 @@ spec:
       triggers:
         - name: TestDeployAccuracy
           type: Alert
-          condition: "{{image_classifer_accuracy}} < 0.90"
+          condition: "avg_over_time({{image_classifer_accuracy}}{job='image-classifier'}[5m]) < 0.20"
       tasks:
         - resourceExecutor:
             task: DataPrep
