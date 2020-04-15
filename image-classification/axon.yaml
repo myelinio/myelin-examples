@@ -118,7 +118,7 @@ spec:
                     weight: 80
                   - destinationIndex: 1
                     weight: 20
-            replicas: 1
+            replicas: 2
             models:
               - name: ImageClassifier
                 modelSelectionStrategy: "best"

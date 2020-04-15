@@ -27,10 +27,12 @@ class ImageClassifier(object):
 		return predictions
 
 	def send_feedback(self, features, feature_names, reward, truth):
-		self.c.post_update("image_classifer_accuracy", reward)
-		self.c.post_update("image_classifer_accuracy", reward, job_name=axon_name)
+		# Accuracy per task
+		self.c.post_update("image_classifer_accuracy", reward, grouping_key={"pod": ""})
+		# Accuracy for all instances
+		self.c.post_update("image_classifer_accuracy_overall", reward, job_name=axon_name, grouping_key={"pod": ""})
+		# Counter per task per pod
 		self.c.post_increment("image_classifer_counter")
-		self.c.post_increment("image_classifer_counter", job_name=axon_name)
 
 	def tags(self):
 		return {'task_id': task_id, 'axon_name': axon_name}
