@@ -1,5 +1,5 @@
 numpy==1.18.1
 keras==2.3.1
-myelin==0.0.48
+myelin==0.0.51
 scikit-learn==0.22.2
 tensorflow==1.15.*
