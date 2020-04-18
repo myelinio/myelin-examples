@@ -49,7 +49,7 @@ import myelin.metric
 flags = tf.app.flags
 flags.DEFINE_string("data_dir", "/tmp/mnist-data",
                     "Directory for storing mnist data")
-flags.DEFINE_string("model_dir", os.getenv('MODEL_PATH', '/tmp'),
+flags.DEFINE_string("log_dir", os.getenv('MODEL_PATH', '/tmp'),
                     "Directory for storing mnist data")
 flags.DEFINE_boolean("download_only", False,
                      "Only perform downloading of data; Do not proceed to "
