@@ -31,15 +31,15 @@ spec:
 
     - name: TfJobTrain
       train:
-        image: myelinio/tf-dist-mnist-test:1.0
-#        imageBuild:
-#          repositoryName: tf-dist-mnist-train
-#          artifact: sources
-#          buildLocation: /src/mnist-with-summaries
-#          dockerfile:
-#            path: Dockerfile
+#        image: gcr.io/myelin-development/tf-dist-mnist-train:1.0.1-274-g824552f
+        imageBuild:
+          repositoryName: tf-dist-mnist-train
+          artifact: sources
+          buildLocation: /src/dist-mnist
+          dockerfile:
+            path: Dockerfile
         tfJobSpec:
-          cleanPodPolicy: Running
+          cleanPodPolicy: None
           tfReplicaSpecs:
             PS:
               replicas: 2
@@ -48,7 +48,7 @@ spec:
                 spec:
                   containers:
                     - name: tensorflow
-                      image: myelinio/tf-dist-mnist-test:1.0
+#                      image: myelinio/tf-dist-mnist-test:1.0
             Worker:
               replicas: 4
               restartPolicy: Never
@@ -56,23 +56,23 @@ spec:
                 spec:
                   containers:
                     - name: tensorflow
-                      image: myelinio/tf-dist-mnist-test:1.0
+#                      image: myelinio/tf-dist-mnist-test:1.0
 
         metrics:
-          - name: test_accuracy
+          - name: test_cross_entropy
             type: Gauge
 
-#    - name: TfModel
-#      deploy:
-#        imageBuild:
-#          repositoryName: tf-dist-mnist-deploy
-#          artifact: sources
-#          buildLocation: /src/
-#          s2i:
-#            contextDir: mnist-with-summaries
-#            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
-#        endpointType: REST
-#        endpointRestType: Multipart
+    - name: TfModel
+      deploy:
+        imageBuild:
+          repositoryName: tf-dist-mnist-deploy
+          artifact: sources
+          buildLocation: /src/
+          s2i:
+            contextDir: mnist-with-summaries
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
+        endpointType: REST
+        endpointRestType: Multipart
 
 
   sensors:
@@ -81,40 +81,40 @@ spec:
         - trainer:
             task: TfJobTrain
 
-#    - name: MnistDeploy
-#      triggers:
-#        - name: TestTrainingComplete
-#          type: Lifecycle
-#          condition: Succeeded
-#          task: TfJobTrain
-#      tasks:
-#        - deployer:
-#            name: deployer
-#            rolloutSpec:
-#              - destinations:
-#                  - destinationIndex: 0
-#                    weight: 50
-#                  - destinationIndex: 1
-#                    weight: 50
-#            replicas: 1
-#            models:
-#              - name: MnistClassifier
-#                modelSelectionStrategy: "best"
-#                routingStrategy:
-#                  - destinations:
-#                      - destinationName: tf-model
-#                        weight: 100
-#                backendModels:
-#                  - name: tf-model
-#                    trainer: TfJobTrain
-#                    deployer: TfModel
-#                    modelSelectionStrategy: "best"
-#            routes:
-#              - path: /predict
-#                dag:
-#                  - model: MnistClassifier
-#                    path: /predict
-#              - path: /send-feedback
-#                dag:
-#                  - model: MnistClassifier
-#                    path: /send-feedback
+    - name: MnistDeploy
+      triggers:
+        - name: TestTrainingComplete
+          type: Lifecycle
+          condition: Succeeded
+          task: TfJobTrain
+      tasks:
+        - deployer:
+            name: deployer
+            rolloutSpec:
+              - destinations:
+                  - destinationIndex: 0
+                    weight: 50
+                  - destinationIndex: 1
+                    weight: 50
+            replicas: 1
+            models:
+              - name: MnistClassifier
+                modelSelectionStrategy: "best"
+                routingStrategy:
+                  - destinations:
+                      - destinationName: tf-model
+                        weight: 100
+                backendModels:
+                  - name: tf-model
+                    trainer: TfJobTrain
+                    deployer: TfModel
+                    modelSelectionStrategy: "best"
+            routes:
+              - path: /predict
+                dag:
+                  - model: MnistClassifier
+                    path: /predict
+              - path: /send-feedback
+                dag:
+                  - model: MnistClassifier
+                    path: /send-feedback

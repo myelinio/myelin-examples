@@ -44,9 +44,12 @@ import time
 
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
+import myelin.metric
 
 flags = tf.app.flags
 flags.DEFINE_string("data_dir", "/tmp/mnist-data",
+                    "Directory for storing mnist data")
+flags.DEFINE_string("model_dir", os.getenv('MODEL_PATH', '/tmp'),
                     "Directory for storing mnist data")
 flags.DEFINE_boolean("download_only", False,
                      "Only perform downloading of data; Do not proceed to "
@@ -182,13 +185,13 @@ def main(unused_argv):
     sm_b = tf.Variable(tf.zeros([10]), name="sm_b")
 
     # Ops: located on the worker specified with FLAGS.task_index
-    x = tf.placeholder(tf.float32, [None, IMAGE_PIXELS * IMAGE_PIXELS])
+    x = tf.placeholder(tf.float32, [None, IMAGE_PIXELS * IMAGE_PIXELS], name='x-input')
     y_ = tf.placeholder(tf.float32, [None, 10])
 
     hid_lin = tf.nn.xw_plus_b(x, hid_w, hid_b)
     hid = tf.nn.relu(hid_lin)
 
-    y = tf.nn.softmax(tf.nn.xw_plus_b(hid, sm_w, sm_b))
+    y = tf.nn.softmax(tf.nn.xw_plus_b(hid, sm_w, sm_b), name='y-pred')
     cross_entropy = -tf.reduce_sum(y_ * tf.log(tf.clip_by_value(y, 1e-10, 1.0)))
 
     opt = tf.train.AdamOptimizer(FLAGS.learning_rate)
@@ -298,6 +301,13 @@ def main(unused_argv):
     print("After %d training step(s), validation cross entropy = %g" %
           (FLAGS.train_steps, val_xent))
 
+    if is_chief:
+        myelin.metric.publish_result(cross_entropy, "test_cross_entropy")
+
+        saver = tf.train.Saver()
+        model_dir = os.path.join(FLAGS.log_dir, 'model')
+        print('saving model to %s' % model_dir)
+        saver.save(sess, model_dir)
 
 if __name__ == "__main__":
   tf.app.run()
