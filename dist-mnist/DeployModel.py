@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class DeployModel(object):
     def __init__(self):
         self.class_names = ["class:{}".format(str(i)) for i in range(10)]
-        session_config = tf.ConfigProto(allow_soft_placement=True)
+        session_config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=True)
         self.sess = tf.Session(config=session_config)
 
         model_path = os.path.join(os.getenv('MODEL_PATH', '/tmp'), 'model')
@@ -19,7 +19,7 @@ class DeployModel(object):
         meta_files = glob.glob(os.path.join(model_path, '*.meta'))
         meta_files.sort(key=os.path.getmtime)
 
-        saver = tf.train.import_meta_graph(meta_files[-1])
+        saver = tf.train.import_meta_graph(meta_files[-1], clear_devices=True)
         saver.restore(self.sess, tf.train.latest_checkpoint(model_path))
 
         graph = tf.get_default_graph()
@@ -53,4 +53,4 @@ if __name__ == '__main__':
     # json_data = json.loads(response.text)
     # prediction = json_data["data"]["ndarray"]
 
-    print("predicted class: %s" % np.argmax(np.array(prediction)))
+    # print("predicted class: %s" % np.argmax(np.array(prediction)))
