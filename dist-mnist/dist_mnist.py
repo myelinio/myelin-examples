@@ -222,12 +222,12 @@ def main(unused_argv):
       sync_init_op = opt.get_init_tokens_op()
 
     init_op = tf.global_variables_initializer()
-    train_dir = tempfile.mkdtemp()
+    model_dir = os.path.join(FLAGS.log_dir, 'model')
 
     if FLAGS.sync_replicas:
       sv = tf.train.Supervisor(
           is_chief=is_chief,
-          logdir=train_dir,
+          logdir=model_dir,
           init_op=init_op,
           local_init_op=local_init_op,
           ready_for_local_init_op=ready_for_local_init_op,
@@ -236,7 +236,7 @@ def main(unused_argv):
     else:
       sv = tf.train.Supervisor(
           is_chief=is_chief,
-          logdir=train_dir,
+          logdir=model_dir,
           init_op=init_op,
           recovery_wait_secs=1,
           global_step=global_step)
@@ -304,10 +304,6 @@ def main(unused_argv):
     if is_chief:
         myelin.metric.publish_result(cross_entropy, "test_cross_entropy")
 
-        saver = tf.train.Saver()
-        model_dir = os.path.join(FLAGS.log_dir, 'model')
-        print('saving model to %s' % model_dir)
-        saver.save(sess, model_dir)
 
 if __name__ == "__main__":
   tf.app.run()
