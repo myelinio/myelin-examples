@@ -19,7 +19,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store
+      name: axon-store2
     spec:
       storageClassName: nfs
       accessModes: ["ReadWriteMany"]
@@ -39,7 +39,7 @@ spec:
           dockerfile:
             path: Dockerfile
         tfJobSpec:
-          cleanPodPolicy: None
+          cleanPodPolicy: Running
           tfReplicaSpecs:
             PS:
               replicas: 2
@@ -69,7 +69,7 @@ spec:
           artifact: sources
           buildLocation: /src/
           s2i:
-            contextDir: mnist-with-summaries
+            contextDir: dist-mnist
             builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
         endpointType: REST
         endpointRestType: Multipart
