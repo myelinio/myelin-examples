@@ -232,8 +232,10 @@ def main(unused_argv):
     if is_chief:
         print('Initializing model dir: %s' % model_dir)
         if tf.gfile.Exists(model_dir):
-            tf.gfile.DeleteRecursively(model_dir)
-        tf.gfile.MakeDirs(model_dir)
+            print('Model dir already created: %s' % model_dir)
+        else:
+            print('Creating model dir: %s' % model_dir)
+            tf.gfile.MakeDirs(model_dir)
 
     if FLAGS.sync_replicas:
       sv = tf.train.Supervisor(
@@ -316,6 +318,11 @@ def main(unused_argv):
     #     myelin.metric.publish_result(val_xent, "test_cross_entropy")
 
     sv.stop()
+    if is_chief:
+        if tf.gfile.Exists(model_dir):
+            print('Model dir %s content: %s' % (model_dir, os.listdir(model_dir)))
+        else:
+            print('Model dir %s is empty' % model_dir)
 
 
 if __name__ == "__main__":
