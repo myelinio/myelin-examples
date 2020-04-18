@@ -314,8 +314,8 @@ def main(unused_argv):
     print("After %d training step(s), validation cross entropy = %g" %
           (FLAGS.train_steps, val_xent))
 
-    # if is_chief:
-    #     myelin.metric.publish_result(val_xent, "test_cross_entropy")
+    if is_chief:
+        myelin.metric.publish_result(val_xent, "test_cross_entropy")
 
     sv.stop()
     if is_chief:
