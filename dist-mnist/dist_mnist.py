@@ -31,6 +31,13 @@ perform forward computation and gradient calculation in parallel, which
 should lead to increased training speed for the simple model.
 """
 
+# NAMESPACE=test_ns
+# MYELIN_NAMESPACE=test_ns
+# PUSHGATEWAY_URL=push-gateway-url
+# TASK_ID=task_id
+# AXON_NAME=axon_name
+
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -39,7 +46,6 @@ import json
 import math
 import os
 import sys
-import tempfile
 import time
 
 import tensorflow as tf
@@ -49,7 +55,7 @@ import myelin.metric
 flags = tf.app.flags
 flags.DEFINE_string("data_dir", "/tmp/mnist-data",
                     "Directory for storing mnist data")
-flags.DEFINE_string("log_dir", os.getenv('MODEL_PATH', '/tmp'),
+flags.DEFINE_string("model_dir", os.getenv('MODEL_PATH', '/tmp'),
                     "Directory for storing mnist data")
 flags.DEFINE_boolean("download_only", False,
                      "Only perform downloading of data; Do not proceed to "
@@ -107,7 +113,7 @@ def main(unused_argv):
   task_type = task_config.get('type')
   task_index = task_config.get('index')
 
-  FLAGS.job_name = task_type
+  FLAGS.    job_name = task_type
   FLAGS.task_index = task_index
 
   mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
@@ -222,7 +228,12 @@ def main(unused_argv):
       sync_init_op = opt.get_init_tokens_op()
 
     init_op = tf.global_variables_initializer()
-    model_dir = os.path.join(FLAGS.log_dir, 'model')
+    model_dir = os.path.join(FLAGS.model_dir, 'model')
+    if is_chief:
+        print('Initializing model dir: %s' % model_dir)
+        if tf.gfile.Exists(model_dir):
+            tf.gfile.DeleteRecursively(model_dir)
+        tf.gfile.MakeDirs(model_dir)
 
     if FLAGS.sync_replicas:
       sv = tf.train.Supervisor(
@@ -301,8 +312,8 @@ def main(unused_argv):
     print("After %d training step(s), validation cross entropy = %g" %
           (FLAGS.train_steps, val_xent))
 
-    if is_chief:
-        myelin.metric.publish_result(val_xent, "test_cross_entropy")
+    # if is_chief:
+    #     myelin.metric.publish_result(val_xent, "test_cross_entropy")
 
     sv.stop()
 
