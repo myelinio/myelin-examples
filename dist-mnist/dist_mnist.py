@@ -302,7 +302,9 @@ def main(unused_argv):
           (FLAGS.train_steps, val_xent))
 
     if is_chief:
-        myelin.metric.publish_result(cross_entropy, "test_cross_entropy")
+        myelin.metric.publish_result(val_xent, "test_cross_entropy")
+
+    sv.stop()
 
 
 if __name__ == "__main__":
