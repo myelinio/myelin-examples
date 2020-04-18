@@ -19,7 +19,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store2
+      name: axon-store
     spec:
       storageClassName: nfs
       accessModes: ["ReadWriteMany"]
@@ -31,7 +31,6 @@ spec:
 
     - name: TfJobTrain
       train:
-#        image: gcr.io/myelin-development/tf-dist-mnist-train:1.0.1-274-g824552f
         imageBuild:
           repositoryName: tf-dist-mnist-train
           artifact: sources
@@ -48,7 +47,6 @@ spec:
                 spec:
                   containers:
                     - name: tensorflow
-#                      image: myelinio/tf-dist-mnist-test:1.0
             Worker:
               replicas: 4
               restartPolicy: Never
@@ -56,7 +54,6 @@ spec:
                 spec:
                   containers:
                     - name: tensorflow
-#                      image: myelinio/tf-dist-mnist-test:1.0
 
         metrics:
           - name: test_cross_entropy
