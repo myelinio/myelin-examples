@@ -1,0 +1,161 @@
+apiVersion: myelinproj.io/v1alpha1
+kind: Axon
+metadata:
+  name: image-classifier
+spec:
+
+  serviceAccountName: myelin-app-myelin
+
+  parameters:
+    - name: epoch-model1
+      value: "1"
+    - name: epoch-model2
+      value: "1"
+
+  artifacts:
+    - name: img-source
+      path: /src
+      git:
+        repo: https://github.com/myelinio/myelin-examples.git
+        revision: master
+
+  volumeClaimTemplate:
+    metadata:
+      name: axon-store
+    spec:
+      storageClassName: standard
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
+
+  tasks:
+
+    - name: DataPrep
+      container:
+        imageBuild:
+          repositoryName: prep-img-class
+          artifact: img-source
+          buildLocation: /src/image-classification
+          dockerfile:
+            path: Dockerfile.preprocess
+
+    - name: TrainModel1
+      train:
+        env:
+          - name: EPOCH
+            value: "{{workflow.parameters.epoch-model1}}"
+        imageBuild:
+          repositoryName: train-img1-class
+          artifact: img-source
+          buildLocation: /src/image-classification/model1
+          dockerfile:
+            path: Dockerfile.train
+
+    - name: TrainModel2
+      train:
+        env:
+          - name: EPOCH
+            value: "{{workflow.parameters.epoch-model2}}"
+        imageBuild:
+          repositoryName: train-img2-class
+          artifact: img-source
+          buildLocation: /src/image-classification/model2
+          dockerfile:
+            path: Dockerfile.train
+
+    - name: DeployModel1
+      deploy:
+        imageBuild:
+          repositoryName: deploy-img1-class
+          artifact: img-source
+          buildLocation: /src/image-classification/
+          s2i:
+            contextDir: model1
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
+        endpointType: REST
+        endpointRestType: Multipart
+
+    - name: DeployModel2
+      deploy:
+        imageBuild:
+          repositoryName: deploy-img2-class
+          artifact: img-source
+          buildLocation: /src/image-classification/
+          s2i:
+            contextDir: model2
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
+        endpointType: REST
+        endpointRestType: Multipart
+
+  sensors:
+
+    - name: TrainOnStart
+      tasks:
+        - resourceExecutor:
+            task: DataPrep
+        - trainer:
+            task: TrainModel1
+        - trainer:
+            task: TrainModel2
+
+    - name: DeploymentDecisionMaker
+      triggers:
+        - name: TestTrainingComplete1
+          type: Lifecycle
+          condition: Succeeded
+          task: TrainModel1
+        - name: TestTrainingComplete2
+          type: Lifecycle
+          condition: Succeeded
+          task: TrainModel2
+      tasks:
+        - deployer:
+            name: deployer
+            rolloutSpec:
+              - destinations:
+                  - destinationIndex: 0
+                    weight: 80
+                  - destinationIndex: 1
+                    weight: 20
+            replicas: 2
+            models:
+              - name: ImageClassifier
+                modelSelectionStrategy: "best"
+                routingStrategy:
+                  - destinations:
+                      - destinationName: model1
+                        weight: 80
+                      - destinationName: model2
+                        weight: 20
+                backendModels:
+                  - name: model1
+                    trainer: TrainModel1
+                    deployer: DeployModel1
+                    modelSelectionStrategy: "best"
+                  - name: model2
+                    trainer: TrainModel2
+                    deployer: DeployModel2
+                    modelSelectionStrategy: "best"
+            routes:
+              - path: /predict
+                dag:
+                  - model: ImageClassifier
+                    path: /predict
+              - path: /send-feedback
+                dag:
+                  - model: ImageClassifier
+                    path: /send-feedback
+
+    - name: PostDeploymentDecisionMaker
+      triggers:
+        - name: TestDeployAccuracy
+          type: Alert
+          condition: "avg_over_time({{image_classifer_accuracy}}{job='image-classifier'}[5m]) < 0.20"
+      tasks:
+        - resourceExecutor:
+            task: DataPrep
+        - trainer:
+            task: TrainModel1
+        - trainer:
+            task: TrainModel2

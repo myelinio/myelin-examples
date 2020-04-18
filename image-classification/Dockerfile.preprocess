@@ -1,0 +1,7 @@
+FROM alpine:3.9
+
+WORKDIR /work
+
+COPY ./preprocess.sh /work/preprocess.sh
+
+CMD sh preprocess.sh
