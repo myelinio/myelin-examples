@@ -55,7 +55,7 @@ import myelin.metric
 flags = tf.app.flags
 flags.DEFINE_string("config_id", "config1",
                     "HPO config id")
-flags.DEFINE_integer("budget", -1,
+flags.DEFINE_float("budget", -1,
                      "Number of (global) training steps to perform, hpo param")
 
 flags.DEFINE_string("data_dir", "/tmp/mnist-data",
@@ -101,7 +101,7 @@ FLAGS = flags.FLAGS
 
 
 if FLAGS.budget > 0:
-    FLAGS.train_steps = FLAGS.budget
+    FLAGS.train_steps = int(FLAGS.budget)
 
 IMAGE_PIXELS = 28
 
