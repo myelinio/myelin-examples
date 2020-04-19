@@ -41,16 +41,17 @@ if __name__ == '__main__':
     data_dir = os.path.join(os.getenv('DATA_PATH', '/tmp'), 'model')
     mnist = input_data.read_data_sets(data_dir)
     batch = mnist.train.next_batch(10)
-    d = DeployModel()
-    x_train = batch[0]
-    print(d.predict(x_train, {}), batch[1])
-    # url = "http://localhost:8080/predict"
-    # session = requests.session()
-    # response = session.post(url, json={"data": {"ndarray": batch[0].tolist()}}, headers={'User-Agent': 'test'})
-    #
-    # print("response.status_code: ", response.status_code)
-    # print("response.text", response.text)
-    # json_data = json.loads(response.text)
-    # prediction = json_data["data"]["ndarray"]
+    # d = DeployModel()
+    # x_train = batch[0]
+    # print(d.predict(x_train, {}), batch[1])
 
-    # print("predicted class: %s" % np.argmax(np.array(prediction)))
+    url = "http://localhost:8080/predict"
+    session = requests.session()
+    response = session.post(url, json={"data": {"ndarray": batch[0].tolist()}}, headers={'User-Agent': 'test'})
+
+    print("response.status_code: ", response.status_code)
+    print("response.text", response.text)
+    json_data = json.loads(response.text)
+    prediction = json_data["data"]["ndarray"]
+
+    print("predicted class: %s" % np.argmax(np.array(prediction)))

@@ -53,6 +53,11 @@ from tensorflow.examples.tutorials.mnist import input_data
 import myelin.metric
 
 flags = tf.app.flags
+flags.DEFINE_string("config_id", "config1",
+                    "HPO config id")
+flags.DEFINE_integer("budget", -1,
+                     "Number of (global) training steps to perform, hpo param")
+
 flags.DEFINE_string("data_dir", "/tmp/mnist-data",
                     "Directory for storing mnist data")
 flags.DEFINE_string("model_dir", os.getenv('MODEL_PATH', '/tmp'),
@@ -93,6 +98,10 @@ flags.DEFINE_string("worker_hosts", "localhost:2223,localhost:2224",
 flags.DEFINE_string("job_name", None, "job name: worker or ps")
 
 FLAGS = flags.FLAGS
+
+
+if FLAGS.budget > 0:
+    FLAGS.train_steps = FLAGS.budget
 
 IMAGE_PIXELS = 28
 

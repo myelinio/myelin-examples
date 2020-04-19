@@ -1,7 +1,7 @@
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
-  name: mnist-tfjob
+  name: mnist-tfjob-hpo
 spec:
 
   serviceAccountName: myelin-minimal
@@ -54,7 +54,22 @@ spec:
                 spec:
                   containers:
                     - name: tensorflow
+        lossMetric: "test_cross_entropy"
 
+        hpTuning:
+          concurrency: 5
+          minBudget: 1000
+          maxBudget: 20000
+          numIteration: 5
+          optimiser: HyperBand
+          params:
+            - type: UniformInteger
+              name: batch_size
+              numerical:
+                lower: "10"
+                upper: "500"
+                default_value: "20"
+                log: false
         metrics:
           - name: test_cross_entropy
             type: Gauge
