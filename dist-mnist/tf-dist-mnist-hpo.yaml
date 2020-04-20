@@ -68,7 +68,21 @@ spec:
               numerical:
                 lower: "10"
                 upper: "500"
-                default_value: "20"
+                default_value: "100"
+                log: false
+            - type: UniformInteger
+              name: hidden_units
+              numerical:
+                lower: "10"
+                upper: "500"
+                default_value: "100"
+                log: false
+            - type: UniformFloat
+              name: learning_rate
+              numerical:
+                lower: "0.001"
+                upper: "0.1"
+                default_value: "0.01"
                 log: false
         metrics:
           - name: test_cross_entropy
