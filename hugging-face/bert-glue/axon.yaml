@@ -1,0 +1,96 @@
+apiVersion: myelinproj.io/v1alpha1
+kind: Axon
+metadata:
+  name: bert-glue
+spec:
+
+  serviceAccountName: myelin-app-myelin
+
+  artifacts:
+    - name: source
+      path: /src
+      git:
+        repo: https://github.com/myelinio/myelin-examples.git
+        revision: master
+
+  volumeClaimTemplate:
+    metadata:
+      name: axon-store
+    spec:
+      storageClassName: standard
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
+
+  tasks:
+
+    - name: TrainModel
+      train:
+        env:
+          - name: EPOCH
+            value: "{{workflow.parameters.epoch-model1}}"
+        imageBuild:
+          repositoryName: train-img1-class
+          artifact: source
+          buildLocation: /src/image-classification/model1
+          dockerfile:
+            path: Dockerfile.train
+
+    - name: DeployModel
+      deploy:
+        imageBuild:
+          repositoryName: deploy-img1-class
+          artifact: source
+          buildLocation: /src/image-classification/
+          s2i:
+            contextDir: model1
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
+        endpointType: REST
+        endpointRestType: Multipart
+
+
+  sensors:
+
+    - name: TrainOnStart
+      tasks:
+        - trainer:
+            task: TrainModel
+
+    - name: DeploymentDecisionMaker
+      triggers:
+        - name: TestTrainingComplete
+          type: Lifecycle
+          condition: Succeeded
+          task: TrainModel
+      tasks:
+        - deployer:
+            name: deployer
+            rolloutSpec:
+              - destinations:
+                  - destinationIndex: 0
+                    weight: 80
+                  - destinationIndex: 1
+                    weight: 20
+            replicas: 1
+            models:
+              - name: BertClassifier
+                modelSelectionStrategy: "best"
+                routingStrategy:
+                  - destinations:
+                      - destinationName: model1
+                        weight: 100
+                backendModels:
+                  - name: model1
+                    trainer: TrainModel
+                    deployer: DeployModel
+                    modelSelectionStrategy: "best"
+            routes:
+              - path: /predict
+                dag:
+                  - model: BertClassifier
+                    path: /predict
+              - path: /send-feedback
+                dag:
+                  - model: BertClassifier
+                    path: /send-feedback

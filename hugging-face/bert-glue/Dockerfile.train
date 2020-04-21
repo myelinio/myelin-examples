@@ -1,0 +1,14 @@
+FROM python:3.7
+
+RUN pip3 install --upgrade pip
+
+COPY requirements-train.txt requirements.txt
+RUN pip install -r requirements.txt
+
+WORKDIR /work
+
+RUN mkdir /work/bert/
+
+COPY train_model.py /work/bert/train_model.py
+
+CMD python bert/train_model.py
