@@ -84,4 +84,4 @@ history = model.fit(
 # Save TF2 model
 model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
 os.makedirs(os.path.join(model_path, "save"), exist_ok=True)
-model.save_pretrainedos.path.join(model_path, "save")
+model.save_pretrained(os.path.join(model_path, "save"))
