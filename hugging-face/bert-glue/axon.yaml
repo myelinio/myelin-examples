@@ -27,24 +27,21 @@ spec:
 
     - name: TrainModel
       train:
-        env:
-          - name: EPOCH
-            value: "{{workflow.parameters.epoch-model1}}"
         imageBuild:
-          repositoryName: train-img1-class
+          repositoryName: train-bert
           artifact: source
-          buildLocation: /src/image-classification/model1
+          buildLocation: /src/hugging-face/bert-glue/
           dockerfile:
             path: Dockerfile.train
 
     - name: DeployModel
       deploy:
         imageBuild:
-          repositoryName: deploy-img1-class
+          repositoryName: deploy-bert
           artifact: source
-          buildLocation: /src/image-classification/
+          buildLocation: /src/hugging-face/
           s2i:
-            contextDir: model1
+            contextDir: bert-glue
             builderImage: docker.io/myelinio/myelin-deployer-s2i-py3:v0.1.4
         endpointType: REST
         endpointRestType: Multipart
