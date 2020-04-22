@@ -33,6 +33,9 @@ spec:
           buildLocation: /src/hugging-face/bert-glue/
           dockerfile:
             path: Dockerfile.train
+        resources:
+          limits:
+            nvidia.com/gpu: 1
 
     - name: DeployModel
       deploy:
