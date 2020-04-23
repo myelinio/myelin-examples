@@ -22,7 +22,7 @@ EPOCHS = 3
 TASK = os.environ.get('TASK_TYPE')
 
 if TASK not in ["mrpc", "sst-2", "sts-b"]:
-    raise Exception("Unknown task type")
+    raise Exception(f"Unknown task type: {TASK}")
 
 if TASK == "sst-2":
     TFDS_TASK = "sst2"
