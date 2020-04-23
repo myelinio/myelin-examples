@@ -19,7 +19,10 @@ USE_XLA = False
 USE_AMP = False
 EPOCHS = 3
 
-TASK = "mrpc"
+TASK = os.environ.get('TASK_TYPE')
+
+if TASK not in ["mrpc", "sst-2", "sts-b"]:
+    raise Exception("Unknown task type")
 
 if TASK == "sst-2":
     TFDS_TASK = "sst2"

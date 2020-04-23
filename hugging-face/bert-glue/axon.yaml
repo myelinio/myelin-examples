@@ -6,6 +6,10 @@ spec:
 
   serviceAccountName: myelin-app-myelin
 
+  parameters:
+    - name: task-type
+      value: "sst-2"
+
   artifacts:
     - name: source
       path: /src
@@ -26,6 +30,9 @@ spec:
   tasks:
 
     - name: TrainModel
+      env:
+        - name: TASK_TYPE
+          value: "{{workflow.parameters.task-type}}"
       train:
         imageBuild:
           repositoryName: train-bert
@@ -42,6 +49,9 @@ spec:
             memory: 16Gi
 
     - name: DeployModel
+      env:
+        - name: TASK_TYPE
+          value: "{{workflow.parameters.task-type}}"
       deploy:
         imageBuild:
           repositoryName: deploy-bert

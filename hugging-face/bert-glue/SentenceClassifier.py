@@ -5,6 +5,7 @@ from transformers import (
 )
 
 model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
+task_type = os.environ.get('TASK_TYPE')
 
 
 class SentenceClassifier(object):
@@ -14,8 +15,9 @@ class SentenceClassifier(object):
 		self.tokenizer = BertTokenizer.from_pretrained("bert-base-cased")
 
 	def predict(self, X, feature_names):
-		sentence1 = X[0]
-		sentence2 = X[1]
-		inputs = self.tokenizer.encode_plus(sentence1, sentence2, add_special_tokens=True, return_tensors='tf')
-		pred = self.model(inputs['input_ids'], token_type_ids=inputs['token_type_ids'])[0].numpy().argmax().item()
-		return [pred]
+		if task_type == "mrpc":
+			sentence1 = X[0]
+			sentence2 = X[1]
+			inputs = self.tokenizer.encode_plus(sentence1, sentence2, add_special_tokens=True, return_tensors='tf')
+			pred = self.model(inputs['input_ids'], token_type_ids=inputs['token_type_ids'])[0].numpy().argmax().item()
+			return [pred]
