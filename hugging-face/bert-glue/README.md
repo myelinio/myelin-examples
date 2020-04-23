@@ -12,4 +12,4 @@ DATA='{"data": {"ndarray": ["This research was consistent with his findings.", "
 curl -d "${DATA}" "${PROXY_URL}"
 ```
 
-The API returns some generated text based on this seed sentence.
+The API returns whether sentence one is a paraphrase of sentence two.
