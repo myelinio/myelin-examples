@@ -34,8 +34,12 @@ spec:
           dockerfile:
             path: Dockerfile.train
         resources:
+          requests:
+            nvidia.com/gpu: 1
+            memory: 16Gi
           limits:
             nvidia.com/gpu: 1
+            memory: 16Gi
 
     - name: DeployModel
       deploy:

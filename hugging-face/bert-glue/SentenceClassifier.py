@@ -18,4 +18,4 @@ class SentenceClassifier(object):
 		sentence2 = X[1]
 		inputs = self.tokenizer.encode_plus(sentence1, sentence2, add_special_tokens=True, return_tensors='tf')
 		pred = self.model(inputs['input_ids'], token_type_ids=inputs['token_type_ids'])[0].numpy().argmax().item()
-		return pred
+		return [pred]
