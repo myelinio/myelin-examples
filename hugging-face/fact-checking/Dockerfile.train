@@ -1,0 +1,12 @@
+FROM tensorflow/tensorflow:2.1.0-gpu-py3
+
+COPY requirements-train.txt requirements.txt
+RUN pip3 install -r requirements.txt
+
+WORKDIR /work
+
+RUN mkdir /work/bert/
+
+COPY run_summarization.py /work/bert/train_model.py
+
+CMD python bert/train_model.py
