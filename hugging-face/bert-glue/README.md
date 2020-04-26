@@ -2,7 +2,7 @@
 
 This mode is based on from [here.](https://github.com/huggingface/transformers/blob/master/examples/run_tf_glue.py)
 
-# Example predict for task mrpc (Microsoft Research Paraphrase Corpus)
+### Example predict for task mrpc (Microsoft Research Paraphrase Corpus)
 
 ```bash
 NAMESPACE=myelin
@@ -14,7 +14,7 @@ curl -d "${DATA}" "${PROXY_URL}"
 
 The API returns whether sentence one is a paraphrase of sentence two.
 
-# Example predict for task sst-2 (The Stanford Sentiment Treebank)
+### Example predict for task sst-2 (The Stanford Sentiment Treebank)
 
 ```bash
 NAMESPACE=myelin
