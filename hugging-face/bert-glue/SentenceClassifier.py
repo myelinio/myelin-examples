@@ -15,9 +15,17 @@ class SentenceClassifier(object):
 		self.tokenizer = BertTokenizer.from_pretrained("bert-base-cased")
 
 	def predict(self, X, feature_names):
-		if task_type == "mrpc":
-			sentence1 = X[0]
-			sentence2 = X[1]
-			inputs = self.tokenizer.encode_plus(sentence1, sentence2, add_special_tokens=True, return_tensors='tf')
+		# paraphrasing or semantic textual similarity
+		if task_type == "mrpc" or task_type == "sts-b":
+			if len(X) != 2:
+				raise Exception("This task needs a pair of sentences.")
+			inputs = self.tokenizer.encode_plus(X[0], X[1], add_special_tokens=True, return_tensors='tf')
+			pred = self.model(inputs['input_ids'], token_type_ids=inputs['token_type_ids'])[0].numpy().argmax().item()
+			return [pred]
+		# sentiment
+		elif task_type == "sst-2":
+			if len(X) != 1:
+				raise Exception("Only sentence is needed for this task.")
+			inputs = self.tokenizer.encode_plus(X[0], add_special_tokens=True, return_tensors='tf')
 			pred = self.model(inputs['input_ids'], token_type_ids=inputs['token_type_ids'])[0].numpy().argmax().item()
 			return [pred]
