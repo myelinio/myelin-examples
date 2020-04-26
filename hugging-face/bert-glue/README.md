@@ -2,7 +2,7 @@
 
 This mode is based on from [here.](https://github.com/huggingface/transformers/blob/master/examples/run_tf_glue.py)
 
-# Example predict for task mrpc (sentence pairs semantic equivalence)
+# Example predict for task mrpc (Microsoft Research Paraphrase Corpus)
 
 ```
 NAMESPACE=myelin

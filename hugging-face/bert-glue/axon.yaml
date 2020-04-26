@@ -30,10 +30,10 @@ spec:
   tasks:
 
     - name: TrainModel
-      env:
-        - name: TASK_TYPE
-          value: "{{workflow.parameters.task-type}}"
       train:
+        env:
+          - name: TASK_TYPE
+            value: "{{workflow.parameters.task-type}}"
         imageBuild:
           repositoryName: train-bert
           artifact: source
@@ -49,10 +49,10 @@ spec:
             memory: 16Gi
 
     - name: DeployModel
-      env:
-        - name: TASK_TYPE
-          value: "{{workflow.parameters.task-type}}"
       deploy:
+        env:
+          - name: TASK_TYPE
+            value: "{{workflow.parameters.task-type}}"
         imageBuild:
           repositoryName: deploy-bert
           artifact: source
