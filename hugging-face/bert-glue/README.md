@@ -24,4 +24,18 @@ POSITIVE='{"data": {"ndarray": ["The consistently excellent Better Call Saul sti
 curl -d "${POSITIVE}" "${PROXY_URL}"
 NEGATIVE='{"data": {"ndarray": ["For a show that regularly displays breathtaking technical mastery, and pairs it with so many compelling, laudable performances, there is an inescapable feeling of emptiness accompanying every shocking death or big plot reveal on Westworld."]}}'
 curl -d "${NEGATIVE}" "${PROXY_URL}"
+
+The API returns whether sentence has negative or positive sentiment.
+```
+
+### Example predict for task sts-b (Semantic Textual Similarity Benchmark)
+
+```bash
+NAMESPACE=myelin
+URL=$(myelin endpoint -n $NAMESPACE bert-glue -o json | jq -r '.[0].modelStable.publicUrl')
+PROXY_URL=${URL}predict
+DATA='{"data": {"ndarray": ["Someone is playing piano.", "A person is playing a keyboard piano."]}}'
+curl -d "${DATA}" "${PROXY_URL}"
+
+The API returns the semantic similarity between those sentences.
 ```
