@@ -1,5 +1,5 @@
 
-apiVersion: myelinproj.io/v1alpha1
+apiVersion: myelin.io/v1alpha1
 kind: Axon
 metadata:
   name: github-insights-spark
