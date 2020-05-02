@@ -2,7 +2,7 @@
 
 This example runs a Spark job that writes results to BigQuery.
 
-### Additional setup [(Spark on Kubernetes).](https://cloud.google.com/solutions/spark-on-kubernetes-engine)
+### Additional setup
 
 Spark setup on Kubernetes
 
@@ -20,3 +20,5 @@ kubectl create clusterrolebinding --clusterrole=cluster-admin --serviceaccount=d
 kubectl create serviceaccount spark --namespace=myelin
 kubectl create clusterrolebinding spark-role --clusterrole=edit --serviceaccount=myelin:spark --namespace=myelin
 ```
+
+More info [here.](https://cloud.google.com/solutions/spark-on-kubernetes-engine)
