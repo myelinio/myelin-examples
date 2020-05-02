@@ -4,8 +4,7 @@ metadata:
   name: mnist-tfjob
 spec:
 
-  serviceAccountName: myelin-minimal
-#  serviceAccountName: myelin-uat-myelin
+  serviceAccountName: myelin-app-myelin
 
   artifacts:
     - name: sources

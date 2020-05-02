@@ -37,13 +37,9 @@ if __name__ == '__main__':
     import requests
     import numpy as np
 
-    #
     data_dir = os.path.join(os.getenv('DATA_PATH', '/tmp'), 'model')
     mnist = input_data.read_data_sets(data_dir)
     batch = mnist.train.next_batch(10)
-    # d = DeployModel()
-    # x_train = batch[0]
-    # print(d.predict(x_train, {}), batch[1])
 
     url = "http://localhost:8080/predict"
     session = requests.session()
