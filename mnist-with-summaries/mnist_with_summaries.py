@@ -160,7 +160,7 @@ def train():
         if i % 10 == 0:  # Record summaries and test-set accuracy
             summary, test_acc, test_xent  = sess.run([merged, accuracy, cross_entropy], feed_dict=feed_dict(False))
             test_writer.add_summary(summary, i)
-            print('Accuracy at step %s: %s' % (i, test_acc, test_xent))
+            print('At step %s: Accuracy: %s, CrossEnt: %s' % (i, test_acc, test_xent))
         else:  # Record train set summaries, and train
             if i % 100 == 99:  # Record execution stats
                 run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
