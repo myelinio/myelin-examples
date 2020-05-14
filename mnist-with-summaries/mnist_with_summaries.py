@@ -201,7 +201,7 @@ if __name__ == '__main__':
                         default=False,
                         help='If true, uses fake data for unit testing.')
     parser.add_argument('--config_id', type=str)
-    parser.add_argument('--budget', type=int, default=10,
+    parser.add_argument('--budget', type=float, default=10,
                         help='Number of steps to run trainer.')
     parser.add_argument('--learning_rate', type=float, default=0.001,
                         help='Initial learning rate')
@@ -222,5 +222,6 @@ if __name__ == '__main__':
                              'tensorflow/mnist/logs/mnist_with_summaries'),
         help='Summaries log directory')
     FLAGS, unparsed = parser.parse_known_args()
+    FLAGS.budget = int(FLAGS.budget)
     print("FLAGS: %s" % FLAGS)
     tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
