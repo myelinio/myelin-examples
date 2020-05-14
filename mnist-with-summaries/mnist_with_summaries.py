@@ -130,7 +130,6 @@ def train():
 
     with tf.name_scope('accuracy'):
         with tf.name_scope('correct_prediction'):
-
             correct_prediction = tf.equal(y_pred, y_)
         with tf.name_scope('accuracy'):
             accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
@@ -159,9 +158,9 @@ def train():
 
     for i in range(FLAGS.budget):
         if i % 10 == 0:  # Record summaries and test-set accuracy
-            summary, acc = sess.run([merged, accuracy], feed_dict=feed_dict(False))
+            summary, test_acc, test_xent  = sess.run([merged, accuracy, cross_entropy], feed_dict=feed_dict(False))
             test_writer.add_summary(summary, i)
-            print('Accuracy at step %s: %s' % (i, acc))
+            print('Accuracy at step %s: %s' % (i, test_acc, test_xent))
         else:  # Record train set summaries, and train
             if i % 100 == 99:  # Record execution stats
                 run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
@@ -185,8 +184,9 @@ def train():
     train_writer.close()
     test_writer.close()
     if is_first_master():
-        print('Reporting loss: %s' % acc)
-        myelin.metric.publish_result(acc, "test_accuracy")
+        print('Reporting loss: %s' % test_acc)
+        myelin.metric.publish_result(test_acc, "test_accuracy")
+        myelin.metric.__MYELIN_CLIENT__.post_update(test_xent, "test_cross_entropy")
 
 
 def is_first_master():
