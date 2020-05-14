@@ -1,7 +1,7 @@
-apiVersion: myelinproj.io/v1alpha1
+apiVersion: myelin.io/v1alpha1
 kind: Axon
 metadata:
-  name: mnist-tfjob1
+  name: mnist-summaries
 spec:
 
   serviceAccountName: myelin-app-myelin
@@ -28,31 +28,15 @@ spec:
 
   tasks:
 
-    - name: TfJobTrain
+    - name: Train
       train:
         imageBuild:
-          repositoryName: tf-dist-mnist-train
+          repositoryName: tf-mnist-train
           artifact: sources
           buildLocation: /src/mnist-with-summaries
           dockerfile:
             path: Dockerfile
-        tfJobSpec:
-          cleanPodPolicy: None
-          tfReplicaSpecs:
-            PS:
-              replicas: 2
-              restartPolicy: Never
-              template:
-                spec:
-                  containers:
-                    - name: tensorflow
-            Worker:
-              replicas: 4
-              restartPolicy: Never
-              template:
-                spec:
-                  containers:
-                    - name: tensorflow
+
         lossMetric: "test_accuracy"
         lossMetricSelector: "greater"
 
@@ -74,10 +58,10 @@ spec:
           - name: test_accuracy
             type: Gauge
 
-    - name: TfModel
+    - name: Model
       deploy:
         imageBuild:
-          repositoryName: tf-dist-mnist-deploy
+          repositoryName: tf-mnist-deploy
           artifact: sources
           buildLocation: /src/
           s2i:
@@ -88,17 +72,17 @@ spec:
 
 
   sensors:
-    - name: TfJobTrain
+    - name: Train
       tasks:
         - trainer:
-            task: TfJobTrain
+            task: Train
 
     - name: MnistDeploy
       triggers:
         - name: TestTrainingComplete
           type: Lifecycle
           condition: Succeeded
-          task: TfJobTrain
+          task: Train
       tasks:
         - deployer:
             name: deployer
@@ -118,8 +102,8 @@ spec:
                         weight: 100
                 backendModels:
                   - name: tf-model
-                    trainer: TfJobTrain
-                    deployer: TfModel
+                    trainer: Train
+                    deployer: Model
                     modelSelectionStrategy: "best"
             routes:
               - path: /predict
