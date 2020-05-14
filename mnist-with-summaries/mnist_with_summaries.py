@@ -185,7 +185,7 @@ def train():
     test_writer.close()
     print('Reporting loss: %s' % test_acc)
     myelin.metric.publish_result(test_acc, "test_accuracy")
-    myelin.metric.__MYELIN_CLIENT__.post_update(test_xent, "test_cross_entropy")
+    myelin.metric.__MYELIN_CLIENT__.post_update("test_cross_entropy", test_xent)
 
 
 def main(_):
