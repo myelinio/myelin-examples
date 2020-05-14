@@ -23,8 +23,8 @@ from utils_summarization import (
 
 """
 python run_summarization.py \
-    --documents_dir /media/ryadh/DATA4T/Ryadh_data/data/fact-checking/dataset/stories
-    --summaries_output_dir /media/ryadh/DATA4T/Ryadh_data/data/fact-checking/summaries_out
+    --documents_dir /Users/ryadhkhisb/Dev/workspaces/m/myelin-examples/hugging-face/fact-checking/dataset
+    --summaries_output_dir /Users/ryadhkhisb/Dev/workspaces/m/myelin-examples/hugging-face/fact-checking/summaries_out
     --no_cuda false
     --batch_size 4 
     --min_length 50

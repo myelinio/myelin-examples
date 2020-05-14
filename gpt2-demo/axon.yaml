@@ -1,4 +1,4 @@
-apiVersion: myelinproj.io/v1alpha1
+apiVersion: myelin.io/v1alpha1
 kind: Axon
 metadata:
   name: gpt2-demo

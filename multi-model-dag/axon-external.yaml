@@ -1,7 +1,7 @@
 # NOTE: this axon is an example to connect to external models. This example would only work with `axon-model-graph.yaml`
 # deployed and `fullPath` and `healthPath` in deployer updated to the correct path of those models.
 
-apiVersion: myelinproj.io/v1alpha1
+apiVersion: myelin.io/v1alpha1
 kind: Axon
 metadata:
   name: multi-model-external

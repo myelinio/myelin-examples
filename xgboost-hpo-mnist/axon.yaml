@@ -1,4 +1,4 @@
-apiVersion: myelinproj.io/v1alpha1
+apiVersion: myelin.io/v1alpha1
 kind: Axon
 metadata:
   name: xgboost-mnist
@@ -29,12 +29,13 @@ spec:
   tasks:
     - name: TrainGBT
       train:
-        imageBuild:
-          repositoryName: xgboost_mnist
-          artifact: rec-source
-          buildLocation: /src/xgboost-hpo-mnist
-          dockerfile:
-            path: Dockerfile
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/xgboost_mnist:1.0.1-242-geed8940
+#        imageBuild:
+#          repositoryName: xgboost_mnist
+#          artifact: rec-source
+#          buildLocation: /src/xgboost-hpo-mnist
+#          dockerfile:
+#            path: Dockerfile
         lossMetric: "accuracy"
         hpTuning:
           concurrency: 2
