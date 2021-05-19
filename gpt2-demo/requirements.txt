@@ -1,6 +1,6 @@
 tensorflow==1.13.1
 numpy==1.16.0
-myelin==0.0.56
+myelin==0.1.1
 regex==2019.04.14
 toposort==1.5
 tqdm==4.29.1

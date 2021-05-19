@@ -21,8 +21,7 @@ class DeployModel3(object):
         return predictions
 
     def send_feedback(self, features, feature_names, reward, truth):
-        res = self.c.post_update("deploy_accuracy", reward)
-        print("Posted metric with status code: %s" % res.status_code)
+        self.c.post_update("deploy_accuracy", reward)
 
     def model_key(self, features_dict, model_name):
         for k, _ in features_dict.items():
