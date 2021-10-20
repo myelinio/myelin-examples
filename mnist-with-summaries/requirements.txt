@@ -1,2 +1,2 @@
-myelin==0.1.4
+myelin==0.1.5
 tensorflow==1.15.2
