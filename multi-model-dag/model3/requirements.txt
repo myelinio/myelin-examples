@@ -1,5 +1,5 @@
 scikit-learn>=0.18
 pandas>=0.22.0
-myelin==0.1.5
+myelin==0.1.6
 Flask==1.0.3
 Flask-Cors==3.0.7
