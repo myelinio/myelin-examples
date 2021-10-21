@@ -1,4 +1,4 @@
-tensorflow==1.13.1
+tensorflow==2.5.1
 numpy==1.16.0
 myelin==0.1.7
 regex==2019.04.14
