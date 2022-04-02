@@ -58,9 +58,10 @@ spec:
               name: kernel
               categorical:
                 values:
-                  - rbf
-                  - poly
-                  - linear
+                  - "rbf"
+                  - "poly"
+                  - "linear"
+                default_value: "linear"
             - type: UniformFloat
               name: C
               numerical:
