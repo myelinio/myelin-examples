@@ -24,11 +24,13 @@ class DemoHPWorker(object):
         assert config['epsilon'] == epsilon
 
         data_path = os.environ.get('DATA_PATH') or '/tmp/data/'
+        data_path_prep = os.environ.get('DATA_PATH_DataPrepTestHP') or '/tmp/data/'
         model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
 
         prep_task = myelin.admin.task(task_name="DataPrepTestHP")
         print(prep_task)
         assert prep_task.data_path == data_path
+        assert data_path_prep == data_path
 
         if not os.path.exists(model_path):
             os.makedirs(model_path)
