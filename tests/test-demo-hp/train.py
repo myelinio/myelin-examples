@@ -28,7 +28,9 @@ class DemoHPWorker(object):
         model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
 
         prep_task = myelin.admin.task(task_name="DataPrepTestHP")
-        print(prep_task)
+        print(f"prep_task={prep_task}")
+        print(f"data_path={data_path}")
+        print(f"data_path_prep={data_path_prep}")
         assert prep_task.data_path == data_path
         assert data_path_prep == data_path
 
