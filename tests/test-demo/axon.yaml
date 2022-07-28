@@ -47,6 +47,7 @@ spec:
     - name: TrainMyelinTest
       train:
         imageBuild:
+          checkImageExists: true
           repositoryName: train-myelin-test
           artifact: rec-source
           buildLocation: /src/tests/test-demo
@@ -63,6 +64,7 @@ spec:
     - name: DeployMyelinTest
       deploy:
         imageBuild:
+          checkImageExists: true
           repositoryName: deploy-myelin-test
           artifact: rec-source
           buildLocation: /src/
