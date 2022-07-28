@@ -31,6 +31,7 @@ spec:
     - name: DataPrepTestHP
       container:
         imageBuild:
+          checkImageExists: true
           repositoryName: preprocess-myelin-test-hp
           artifact: rec-source
           buildLocation: /src/tests/test-demo-hp
@@ -41,6 +42,7 @@ spec:
     - name: TrainMyelinTestHP
       train:
         imageBuild:
+          checkImageExists: true
           repositoryName: train-myelin-test-hp
           artifact: rec-source
           buildLocation: /src/tests/test-demo-hp
@@ -80,6 +82,7 @@ spec:
     - name: DeployMyelinTestHP
       deploy:
         imageBuild:
+          checkImageExists: true
           repositoryName: deploy-myelin-test-hp
           artifact: rec-source
           buildLocation: /src/
